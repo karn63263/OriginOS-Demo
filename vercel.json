@@ -1,0 +1,14 @@
+{
+    "outputDirectory": "public",
+    "functions": {
+        "api/[...path].js": {
+            "includeFiles": "public/**"
+        }
+    },
+    "rewrites": [
+        {
+            "source": "/admin",
+            "destination": "/admin.html"
+        }
+    ]
+}

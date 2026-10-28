@@ -12,7 +12,7 @@ cp .env.example .env      # then set values, or export them in your shell
 ADMIN_PASSWORD=your-password npm start
 ```
 Site: http://localhost:3000 · Admin: http://localhost:3000/admin
-(Needs Node 18+. The database file is created at `data/origin.db` and seeded on first start.)
+(Needs Node 22.x. The database file is created at `data/origin.db` and seeded on first start.)
 
 ## What is now real
 | Feature | Before | Now |
@@ -38,3 +38,5 @@ Admin (Bearer token from `POST /api/admin/login`): applications, subscribers, or
 ## Deploy
 Any Node host (Render, Railway, a VPS) or `docker build -t origin . && docker run -p 3000:3000 -e ADMIN_PASSWORD=... -v origin-data:/app/data origin`.
 Set `ADMIN_PASSWORD` and `SESSION_SECRET`; keep `data/` on a persistent volume. Serve over HTTPS.
+
+Vercel runs the API on Node.js 22.x (required by `better-sqlite3`). Its `/tmp` filesystem is temporary, so SQLite data does not persist across function instances or deployments. Use a hosted database if you need persistent applications, subscribers, or admin edits.

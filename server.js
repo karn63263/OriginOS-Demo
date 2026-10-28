@@ -150,4 +150,8 @@ app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] })
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((req, res) => res.status(404).sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.listen(PORT, () => console.log(`ORIGIN is live → http://localhost:${PORT}   (admin: /admin)`));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`ORIGIN is live → http://localhost:${PORT}   (admin: /admin)`));
+}
+
+module.exports = app;
