@@ -1,0 +1,17 @@
+{
+  "name": "origin-fullstack",
+  "version": "1.0.0",
+  "description": "ORIGIN technical club - full-stack website (Express + SQLite)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js --reset"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.21.0"
+  }
+}

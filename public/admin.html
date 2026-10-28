@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORIGIN Admin</title>
+<style>
+:root{--bg:#050816;--card:#0F172A;--accent:#6C63FF;--cyan:#00E5FF;--muted:#94A3B8;--ok:#00FF94;--b:rgba(255,255,255,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font:14px Inter,system-ui,sans-serif;padding:24px}
+h1{font-size:20px;letter-spacing:.14em}h2{font-size:15px;color:var(--cyan);margin:28px 0 10px}
+.card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:18px}
+input,select,button{background:#03040c;border:1px solid var(--b);color:#fff;border-radius:8px;padding:9px 12px;font:inherit}
+button{cursor:pointer}button.p{background:linear-gradient(135deg,var(--accent),#8b5cf6);border:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.n{font-size:28px;font-weight:700;color:var(--cyan)}.l{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--b);vertical-align:top}
+th{color:var(--muted);font-size:11px;letter-spacing:.1em}.wrap{overflow-x:auto}
+#login{max-width:340px;margin:12vh auto;text-align:center}#app{display:none;max-width:1200px;margin:auto}
+.err{color:#ff5f57;font-size:12px;margin-top:8px}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+</style></head><body>
+<div id="login" class="card"><h1>ORIGIN ADMIN</h1><p class="l">restricted access</p>
+<input id="pw" type="password" placeholder="Admin password" style="width:100%;margin:12px 0"><button class="p" id="go" style="width:100%">Sign in</button><div class="err" id="lerr"></div></div>
+<div id="app">
+<div style="display:flex;justify-content:space-between;align-items:center"><h1>ORIGIN // ADMIN</h1><span><button id="csv">Export applications CSV</button> <button id="out">Sign out</button></span></div>
+<div class="grid" id="sum"></div>
+<h2>Applications</h2><div class="card wrap"><table id="apps"></table></div>
+<h2>Newsletter subscribers</h2><div class="card wrap"><table id="subs"></table></div>
+<h2>Leaderboard — set / add XP</h2><div class="card"><div class="row"><input id="lbn" placeholder="Member name"><input id="lbc" placeholder="Category"><input id="lbx" type="number" placeholder="XP"><button class="p" id="lbs">Save</button></div></div>
+<h2>Live stats</h2><div class="card"><div class="row" id="stats"></div></div>
+<h2>Post to live feed</h2><div class="card"><div class="row"><input id="fi" placeholder="⎇" style="width:60px"><input id="ft" placeholder="Update text" style="flex:1"><button class="p" id="fs">Post</button></div></div>
+<h2>ORI questions (latest)</h2><div class="card wrap"><table id="ori"></table></div>
+</div>
+<script>
+let T=sessionStorage.getItem('og_t')||'';
+const $=id=>document.getElementById(id);
+async function api(p,o={}){const r=await fetch('/api'+p,{...o,headers:{'Content-Type':'application/json',Authorization:'Bearer '+T}});
+ if(r.status===401&&p!=='/admin/login'){logout();throw new Error('auth')}const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Error');return d}
+function logout(){sessionStorage.removeItem('og_t');T='';$('app').style.display='none';$('login').style.display='block'}
+function cell(v){const td=document.createElement('td');td.textContent=v==null?'':v;return td}
+function table(el,head,rows,extra){el.innerHTML='';const tr=document.createElement('tr');head.forEach(h=>{const th=document.createElement('th');th.textContent=h;tr.appendChild(th)});el.appendChild(tr);
+ rows.forEach(r=>{const t=document.createElement('tr');r.forEach(v=>t.appendChild(v instanceof Node?v:cell(v)));el.appendChild(t)})}
+async function load(){
+ const s=await api('/admin/summary');$('sum').innerHTML='';
+ [['Applications',s.applications],['New',s.newApplications],['Subscribers',s.subscribers],['ORI questions',s.oriQuestions],['ORI unanswered',s.oriUnmatched]].forEach(([l,n])=>{const d=document.createElement('div');d.className='card';d.innerHTML='<div class="n"></div><div class="l"></div>';d.firstChild.textContent=n;d.lastChild.textContent=l;$('sum').appendChild(d)});
+ const apps=await api('/admin/applications');
+ table($('apps'),['ID','Name','Email','Domain','About','Status','Date',''],apps.map(a=>{
+  const sel=document.createElement('select');['new','reviewing','challenge','accepted','rejected'].forEach(x=>{const o=document.createElement('option');o.value=o.textContent=x;if(x===a.status)o.selected=true;sel.appendChild(o)});
+  sel.onchange=()=>api('/admin/applications/'+a.id,{method:'PATCH',body:JSON.stringify({status:sel.value})});
+  const st=document.createElement('td');st.appendChild(sel);
+  const del=document.createElement('button');del.textContent='✕';del.onclick=async()=>{if(confirm('Delete this application?')){await api('/admin/applications/'+a.id,{method:'DELETE'});load()}};
+  const dt=document.createElement('td');dt.appendChild(del);
+  return[a.tx_id,a.name,a.email,a.domain,a.about,st,a.created_at,dt]}));
+ const subs=await api('/admin/subscribers');table($('subs'),['Email','Date'],subs.map(x=>[x.email,x.created_at]));
+ const ori=await api('/admin/ori-log');table($('ori'),['Question','Answered','Date'],ori.map(x=>[x.question,x.matched?'yes':'no',x.created_at]));
+ const st=await (await fetch('/api/stats')).json();$('stats').innerHTML='';
+ st.forEach(x=>{const w=document.createElement('label');w.className='l';w.textContent=x.label+' ';const i=document.createElement('input');i.type='number';i.value=x.value;i.style.width='110px';
+  i.onchange=()=>api('/admin/stats/'+x.key,{method:'PATCH',body:JSON.stringify({value:i.value})});w.appendChild(i);$('stats').appendChild(w)});
+}
+async function enter(){$('login').style.display='none';$('app').style.display='block';try{await load()}catch(e){}}
+$('go').onclick=async()=>{try{const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('pw').value})});const d=await r.json();
+ if(!r.ok)throw new Error(d.error);T=d.token;sessionStorage.setItem('og_t',T);enter()}catch(e){$('lerr').textContent=e.message}};
+$('pw').onkeydown=e=>{if(e.key==='Enter')$('go').click()};
+$('out').onclick=logout;
+$('csv').onclick=async()=>{const r=await fetch('/api/admin/export/applications.csv',{headers:{Authorization:'Bearer '+T}});const b=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='applications.csv';a.click()};
+$('lbs').onclick=async()=>{await api('/admin/leaderboard',{method:'POST',body:JSON.stringify({name:$('lbn').value,category:$('lbc').value,xp:$('lbx').value})});$('lbn').value=$('lbc').value=$('lbx').value=''};
+$('fs').onclick=async()=>{await api('/admin/feed',{method:'POST',body:JSON.stringify({icon:$('fi').value,text:$('ft').value})});$('ft').value=''};
+if(T)enter();
+</script></body></html>
