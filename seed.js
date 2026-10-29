@@ -39,9 +39,10 @@ function seed() {
       ['P. Nishank', 'JOINT SECRETARY', 'Next.js,Three.js,GSAP', 'Current mission: this website. yes, this one. it never ends.', 9, 2],
       ['S. Abhinav Rishi', 'MEMBER', 'Pentesting,CTF,Networks', 'Current mission: defending the club infra and attacking scoreboards.', 10, 5],
       ['Kabir Singh', 'LEAD // OPEN SOURCE', 'TypeScript,Git,Community', 'Current mission: OpenTrack v2 — 2k stars or bust.', 8, 2],
-      ['Meera Nair', 'DESIGN HEAD', 'Figma,Motion,Brand', 'Current mission: making engineers care about kerning.', 7, 1],
+      ['Mohit', 'MEMBER', 'Figma,Motion,Brand', 'Current mission: making engineers care about kerning.', 7, 1],
     ].forEach((r, i) => m.run(...r, i));
   }
+  db.prepare("UPDATE members SET name='Mohit',role='MEMBER' WHERE name='Meera Nair'").run();
   db.prepare("UPDATE members SET name='S. Abhinav Rishi',role='MEMBER' WHERE name='Isha Rao'").run();
   db.prepare("UPDATE members SET name='P. Nishank',role='JOINT SECRETARY' WHERE name='Dev Patel'").run();
   db.prepare("UPDATE members SET name='M. Rakesh',role='SECRETARY' WHERE name='Zara Khan'").run();
@@ -69,9 +70,10 @@ function seed() {
   if (empty('leaderboard')) {
     const l = db.prepare('INSERT INTO leaderboard(name,category,xp) VALUES (?,?,?)');
     [['M. Rakesh', 'Robotics', 4820], ['P. Nishank', 'Web', 4510], ['K. Aishwarya', 'AI', 4330], ['S. Abhinav Rishi', 'Cyber', 3900],
-    ['Kabir Singh', 'Open Source', 3410], ['Meera Nair', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]]
+    ['Kabir Singh', 'Open Source', 3410], ['Mohit', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]]
       .forEach(r => l.run(...r));
   }
+  db.prepare("UPDATE leaderboard SET name='Mohit' WHERE name='Meera Nair'").run();
   db.prepare("UPDATE leaderboard SET name='S. Abhinav Rishi' WHERE name='Isha Rao'").run();
   db.prepare("UPDATE leaderboard SET name='P. Nishank' WHERE name='Dev Patel'").run();
   db.prepare("UPDATE leaderboard SET name='M. Rakesh' WHERE name='Zara Khan'").run();
