@@ -10,9 +10,16 @@ const empty = t => db.prepare(`SELECT COUNT(*) c FROM ${t}`).get().c === 0;
 function seed() {
   if (empty('stats')) {
     const s = db.prepare('INSERT INTO stats(key,label,value,sort) VALUES (?,?,?,?)');
-    [['projects', 'Projects Built', 46], ['hackathons', 'Hackathons', 31], ['members', 'Members', 147],
-     ['awards', 'Awards', 72], ['hours', 'Hours Coded', 14892]].forEach((r, i) => s.run(r[0], r[1], r[2], i));
+    [['projects', 'Projects Built', 0], ['hackathons', 'Hackathons', 3], ['members', 'Members', 16],
+     ['events', 'Events', 8], ['hours', 'Hours Coded', 52]].forEach((r, i) => s.run(r[0], r[1], r[2], i));
   }
+  // Migrate the original seeded stats once, without overwriting admin-edited values.
+  [['projects', 'Projects Built', 46, 0], ['hackathons', 'Hackathons', 31, 3],
+   ['members', 'Members', 147, 16], ['hours', 'Hours Coded', 14892, 52]]
+    .forEach(([key, label, oldValue, value]) => {
+      db.prepare('UPDATE stats SET label=?,value=? WHERE key=? AND value=?').run(label, value, key, oldValue);
+    });
+  db.prepare("UPDATE stats SET key='events',label='Events',value=8 WHERE key='awards' AND value=72").run();
   if (empty('projects')) {
     const p = db.prepare('INSERT INTO projects(name,glyph,summary,stack,problem,solution,team,outcome_label,outcome,sort) VALUES (?,?,?,?,?,?,?,?,?,?)');
     [
