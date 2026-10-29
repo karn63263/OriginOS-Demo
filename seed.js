@@ -11,11 +11,11 @@ function seed() {
   if (empty('stats')) {
     const s = db.prepare('INSERT INTO stats(key,label,value,sort) VALUES (?,?,?,?)');
     [['projects', 'Projects Built', 0], ['hackathons', 'Hackathons', 3], ['members', 'Members', 16],
-     ['events', 'Events', 8], ['hours', 'Hours Coded', 52]].forEach((r, i) => s.run(r[0], r[1], r[2], i));
+    ['events', 'Events', 8], ['hours', 'Hours Coded', 52]].forEach((r, i) => s.run(r[0], r[1], r[2], i));
   }
   // Migrate the original seeded stats once, without overwriting admin-edited values.
   [['projects', 'Projects Built', 46, 0], ['hackathons', 'Hackathons', 31, 3],
-   ['members', 'Members', 147, 16], ['hours', 'Hours Coded', 14892, 52]]
+  ['members', 'Members', 147, 16], ['hours', 'Hours Coded', 14892, 52]]
     .forEach(([key, label, oldValue, value]) => {
       db.prepare('UPDATE stats SET label=?,value=? WHERE key=? AND value=?').run(label, value, key, oldValue);
     });
@@ -45,42 +45,42 @@ function seed() {
   if (empty('leaderboard')) {
     const l = db.prepare('INSERT INTO leaderboard(name,category,xp) VALUES (?,?,?)');
     [['Zara Khan', 'Robotics', 4820], ['Dev Patel', 'Web', 4510], ['Aarav Mehta', 'AI', 4330], ['Isha Rao', 'Cyber', 3900],
-     ['Kabir Singh', 'Open Source', 3410], ['Meera Nair', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]]
+    ['Kabir Singh', 'Open Source', 3410], ['Meera Nair', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]]
       .forEach(r => l.run(...r));
   }
   if (empty('gallery')) {
     const g = db.prepare('INSERT INTO gallery(icon,caption,category,meta,sort) VALUES (?,?,?,?,?)');
     [['🏆', 'National AgriTech Hackathon — Winners', 'hack', 'hack · mar 2025'], ['🌙', '48 hours, zero sleep, one demo', 'hack', 'hack · feb 2026'],
-     ['🤖', 'Robotics workshop: 60 bots, 60 grins', 'work', 'work · jan 2026'], ['🚐', 'Industrial visit — the datacenter trip', 'trip', 'trip · nov 2025'],
-     ['🎉', 'Celebrating 147 members strong', 'win', 'win · aug 2025'], ['⚔', 'Inter-college CTF finals', 'comp', 'comp · oct 2025'],
-     ['🧑‍💻', 'Build night #23 — whiteboards full', 'work', 'work · sep 2025'], ['🏅', 'BoltBot podium at nationals', 'comp', 'comp · dec 2025'],
-     ['🍕', 'Demo day + pizza day (same day)', 'win', 'win · apr 2026'], ['🔧', 'PCB soldering marathon', 'work', 'work · jun 2025'],
-     ['⛰', 'Team retreat to the hills', 'trip', 'trip · dec 2024'], ['🥈', 'SentinelX takes silver at Cyber CTF', 'comp', 'comp · jul 2024']]
+    ['🤖', 'Robotics workshop: 60 bots, 60 grins', 'work', 'work · jan 2026'], ['🚐', 'Industrial visit — the datacenter trip', 'trip', 'trip · nov 2025'],
+    ['🎉', 'Celebrating 147 members strong', 'win', 'win · aug 2025'], ['⚔', 'Inter-college CTF finals', 'comp', 'comp · oct 2025'],
+    ['🧑‍💻', 'Build night #23 — whiteboards full', 'work', 'work · sep 2025'], ['🏅', 'BoltBot podium at nationals', 'comp', 'comp · dec 2025'],
+    ['🍕', 'Demo day + pizza day (same day)', 'win', 'win · apr 2026'], ['🔧', 'PCB soldering marathon', 'work', 'work · jun 2025'],
+    ['⛰', 'Team retreat to the hills', 'trip', 'trip · dec 2024'], ['🥈', 'SentinelX takes silver at Cyber CTF', 'comp', 'comp · jul 2024']]
       .forEach((r, i) => g.run(...r, i));
   }
   if (empty('timeline')) {
     const t = db.prepare('INSERT INTO timeline(year,title,body,sort) VALUES (?,?,?,?)');
     [['2021', 'ORIGIN was born.', 'Seven students. One borrowed classroom. A whiteboard, a dream, and zero budget.'],
-     ['2022', 'First Hackathon Win', 'Our web team took 1st place at the state-level hackathon — the first trophy of many.'],
-     ['2023', 'National Recognition', 'Two national podiums, a research paper accepted, and 100+ members strong.'],
-     ['2024', 'AI Division Started', "A dedicated AI lab, GPU access secured, and the club's first industry collaboration."],
-     ['2025', 'Building Startups', "Three member-founded startups in incubation. ORIGIN is no longer just a club — it's a launchpad."],
-     ['2026', 'You are here.', 'The next chapter needs builders. Scroll down and claim your seat.']]
+    ['2022', 'First Hackathon Win', 'Our web team took 1st place at the state-level hackathon — the first trophy of many.'],
+    ['2023', 'National Recognition', 'Two national podiums, a research paper accepted, and 100+ members strong.'],
+    ['2024', 'AI Division Started', "A dedicated AI lab, GPU access secured, and the club's first industry collaboration."],
+    ['2025', 'Building Startups', "Three member-founded startups in incubation. ORIGIN is no longer just a club — it's a launchpad."],
+    ['2026', 'You are here.', 'The next chapter needs builders. Scroll down and claim your seat.']]
       .forEach((r, i) => t.run(...r, i));
   }
   if (empty('missions')) {
     const m = db.prepare('INSERT INTO missions(name,status,description,sort) VALUES (?,?,?,?)');
     [['🛰 AeroSense v2', 'live', 'Field trial #12 scheduled · drone fleet charging · model retraining tonight.'],
-     ['🧠 NeuraTutor', 'live', '1,142 active learners · agent pipeline healthy · v0.9 releasing Friday.'],
-     ['⚡ HackXtreme 2026', 'soon', 'Flagship hackathon · registrations open · 48h · ₹1.5L prize pool.'],
-     ['🧪 Robotics Lab', 'live', 'BoltBot Mk-IV assembly at 40% · torque tests passing.']]
+    ['🧠 NeuraTutor', 'live', '1,142 active learners · agent pipeline healthy · v0.9 releasing Friday.'],
+    ['⚡ HackXtreme 2026', 'soon', 'Flagship hackathon · registrations open · 48h · ₹1.5L prize pool.'],
+    ['🧪 Robotics Lab', 'live', 'BoltBot Mk-IV assembly at 40% · torque tests passing.']]
       .forEach((r, i) => m.run(...r, i));
   }
   if (empty('feed')) {
     const f = db.prepare('INSERT INTO feed(icon,text) VALUES (?,?)');
     [['⎇', 'AeroSense model retrain queued'], ['✦', 'Isha.Rao +50 XP — CTF qualifier'], ['⎇', 'OpenTrack PR #142 merged'],
-     ['✦', 'Meera.Nair +30 XP — brand kit v3'], ['⎇', 'BoltBot Mk-IV part printed'], ['✦', 'Ananya.Gupta +20 XP — sensor docs'],
-     ['⎇', 'HackXtreme: 12 new registrations']].forEach(r => f.run(...r));
+    ['✦', 'Meera.Nair +30 XP — brand kit v3'], ['⎇', 'BoltBot Mk-IV part printed'], ['✦', 'Ananya.Gupta +20 XP — sensor docs'],
+    ['⎇', 'HackXtreme: 12 new registrations']].forEach(r => f.run(...r));
   }
   if (empty('ori_faq')) {
     const q = db.prepare('INSERT INTO ori_faq(pattern,answer,sort) VALUES (?,?,?)');

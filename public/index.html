@@ -1,867 +1,2712 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORIGIN — We Don't Learn Technology. We Create It.</title>
-<meta name="description" content="ORIGIN — the operating system for innovators. Join the people building tomorrow.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#050816; --card:#0F172A; --accent:#6C63FF; --cyan:#00E5FF;
-  --text:#FFFFFF; --muted:#94A3B8; --success:#00FF94;
-  --border:rgba(255,255,255,0.08);
-  --neon:0;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  background:var(--bg); color:var(--text);
-  font-family:'Inter',system-ui,sans-serif;
-  overflow-x:hidden; cursor:none;
-  transition:filter .6s;
-}
-body.neon{ --accent:#00FF94; --cyan:#FF00E5; }
-body.neon #bg{filter:hue-rotate(120deg) saturate(1.6)}
-::selection{background:var(--accent);color:#fff}
-h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.02em}
-.mono{font-family:'JetBrains Mono',monospace}
-a{color:inherit;text-decoration:none}
-canvas#bg{position:fixed;inset:0;z-index:0;transition:filter .8s}
-.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");}
-/* ---------- CURSOR ---------- */
-#cursor{position:fixed;width:14px;height:14px;border-radius:50%;background:var(--cyan);
-  z-index:9999;pointer-events:none;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .25s,height .25s,background .25s}
-#cursorRing{position:fixed;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.35);
-  z-index:9998;pointer-events:none;transform:translate(-50%,-50%)}
-#cursor.hovering{width:56px;height:56px;background:#fff}
-@media(hover:none){#cursor,#cursorRing{display:none}body{cursor:auto}}
-/* ---------- BOOT ---------- */
-#boot{position:fixed;inset:0;background:#03040c;z-index:10000;display:flex;align-items:center;justify-content:center;transition:opacity .9s,visibility .9s}
-#boot.done{opacity:0;visibility:hidden}
-.boot-inner{width:min(560px,88vw)}
-#bootLog{font-family:'JetBrains Mono',monospace;font-size:clamp(11px,1.6vw,14px);color:var(--success);min-height:180px;line-height:1.9;text-shadow:0 0 12px rgba(0,255,148,.4)}
-#bootLog .dim{color:#3d4a63}
-#bootLog .acc{color:var(--cyan)}
-.boot-bar{height:2px;background:rgba(255,255,255,.08);margin-top:26px;border-radius:2px;overflow:hidden}
-#bootFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--cyan));box-shadow:0 0 18px var(--cyan);transition:width .3s}
-#bootPct{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:11px;margin-top:10px;text-align:right}
-.caret{display:inline-block;width:8px;height:14px;background:var(--success);animation:blink 0.8s steps(1) infinite;vertical-align:-2px}
-@keyframes blink{50%{opacity:0}}
-/* ---------- NAV ---------- */
-nav{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;
-  padding:16px clamp(18px,4vw,48px);backdrop-filter:blur(16px);
-  background:linear-gradient(rgba(5,8,22,.75),rgba(5,8,22,.25));border-bottom:1px solid var(--border);
-  transform:translateY(-110%);transition:transform .8s cubic-bezier(.16,1,.3,1)}
-nav.show{transform:translateY(0)}
-.logo{font-family:'Space Grotesk';font-weight:700;font-size:20px;letter-spacing:.14em;display:flex;align-items:center;gap:10px}
-.logo .dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 12px var(--success);animation:pulse 2s infinite}
-@keyframes pulse{50%{opacity:.4}}
-.nav-links{display:flex;gap:clamp(12px,2.4vw,30px);font-size:13px;color:var(--muted)}
-.nav-links a{position:relative;transition:color .3s;padding:4px 0}
-.nav-links a:hover{color:#fff}
-.nav-links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--cyan);transition:width .35s}
-.nav-links a:hover::after{width:100%}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:10px;font-weight:600;font-size:14px;
-  border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;cursor:none;position:relative;overflow:hidden;
-  transition:border-color .3s,box-shadow .3s;backdrop-filter:blur(8px)}
-.btn:hover{border-color:var(--accent);box-shadow:0 0 30px rgba(108,99,255,.35)}
-.btn.primary{background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none}
-.btn.primary:hover{box-shadow:0 0 40px rgba(108,99,255,.6)}
-.btn.small{padding:8px 16px;font-size:12px}
-@media(max-width:860px){.nav-links{display:none}}
-/* ---------- HERO ---------- */
-main{position:relative;z-index:2}
-#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 20px 60px;position:relative}
-.os-tag{font-family:'JetBrains Mono';font-size:12px;color:var(--cyan);letter-spacing:.3em;border:1px solid rgba(0,229,255,.25);
-  padding:8px 18px;border-radius:100px;background:rgba(0,229,255,.05);opacity:0}
-#hero h1{font-size:clamp(34px,7.2vw,88px);line-height:1.04;margin:28px 0 10px;max-width:1000px;opacity:0}
-#hero h1 .line{display:block}
-.grad{background:linear-gradient(100deg,var(--accent),var(--cyan) 60%,var(--success));-webkit-background-clip:text;background-clip:text;color:transparent}
-#typeLine{font-family:'JetBrains Mono';color:var(--muted);font-size:clamp(13px,1.8vw,17px);min-height:26px;margin-top:14px;opacity:0}
-.hero-ctas{display:flex;gap:16px;margin-top:42px;flex-wrap:wrap;justify-content:center;opacity:0}
-.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:11px;letter-spacing:.25em;display:flex;flex-direction:column;align-items:center;gap:8px}
-.scroll-hint .wheel{width:1px;height:38px;background:linear-gradient(var(--cyan),transparent);animation:drop 1.6s infinite}
-@keyframes drop{from{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1)}to{transform:scaleY(0);transform-origin:bottom}}
-.glitch{position:relative}
-.glitch.glitching::before,.glitch.glitching::after{content:attr(data-text);position:absolute;inset:0}
-.glitch.glitching::before{color:var(--cyan);animation:gl1 .35s steps(2) both;clip-path:inset(20% 0 40% 0)}
-.glitch.glitching::after{color:#ff2d78;animation:gl2 .35s steps(2) both;clip-path:inset(60% 0 10% 0)}
-@keyframes gl1{0%{transform:translate(-6px,2px)}50%{transform:translate(4px,-3px)}100%{transform:none}}
-@keyframes gl2{0%{transform:translate(5px,-2px)}50%{transform:translate(-4px,3px)}100%{transform:none}}
-/* ---------- SECTIONS ---------- */
-section{padding:110px clamp(20px,6vw,80px);max-width:1280px;margin:0 auto;position:relative}
-.sec-head{margin-bottom:56px}
-.sec-kicker{font-family:'JetBrains Mono';font-size:12px;color:var(--accent);letter-spacing:.3em;margin-bottom:14px;display:flex;align-items:center;gap:12px}
-.sec-kicker::before{content:'';width:34px;height:1px;background:var(--accent)}
-.sec-head h2{font-size:clamp(28px,4.6vw,52px)}
-.sec-head p{color:var(--muted);margin-top:14px;max-width:640px;line-height:1.7;font-size:15px}
-.reveal{opacity:0;transform:translateY(46px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
-.reveal.in{opacity:1;transform:none}
-.reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}.reveal.d4{transition-delay:.4s}
-/* ---------- STATS ---------- */
-#stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;max-width:1280px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px 24px;position:relative;overflow:hidden;transition:transform .4s,border-color .4s}
-.stat:hover{transform:translateY(-6px);border-color:rgba(108,99,255,.5)}
-.stat::after{content:'';position:absolute;top:-40%;right:-40%;width:80%;height:80%;background:radial-gradient(circle,rgba(108,99,255,.18),transparent 70%)}
-.stat .num{font-family:'Space Grotesk';font-size:clamp(30px,3.4vw,44px);font-weight:700;background:linear-gradient(120deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
-.stat .lbl{color:var(--muted);font-size:12px;letter-spacing:.15em;margin-top:8px;text-transform:uppercase}
-/* ---------- DOMAINS ---------- */
-.domains{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-.domain{background:linear-gradient(160deg,var(--card),rgba(15,23,42,.4));border:1px solid var(--border);border-radius:18px;padding:34px 28px;position:relative;overflow:hidden;transition:transform .45s cubic-bezier(.16,1,.3,1),border-color .45s;min-height:210px}
-.domain:hover{transform:translateY(-8px) scale(1.015);border-color:rgba(0,229,255,.4)}
-.domain .ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.3)}
-.domain h3{font-size:20px;margin-bottom:10px}
-.domain p{color:var(--muted);font-size:13.5px;line-height:1.65}
-.domain .tags{position:absolute;bottom:-60px;left:28px;right:28px;display:flex;flex-wrap:wrap;gap:6px;transition:bottom .45s cubic-bezier(.16,1,.3,1)}
-.domain:hover .tags{bottom:24px}
-.domain .tag{font-family:'JetBrains Mono';font-size:10.5px;padding:5px 10px;border-radius:100px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:var(--cyan)}
-.domain .desc{transition:opacity .35s}
-.domain:hover .desc{opacity:0}
-/* ---------- PROJECTS ---------- */
-.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:22px;perspective:1400px}
-.project{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transform-style:preserve-3d;transition:border-color .4s;position:relative}
-.project:hover{border-color:rgba(108,99,255,.55)}
-.project .visual{height:170px;position:relative;background:
-  radial-gradient(600px circle at var(--mx,50%) var(--my,50%),rgba(108,99,255,.35),transparent 45%),linear-gradient(140deg,#111a33,#0a0f22);display:flex;align-items:center;justify-content:center;font-size:46px}
-.project .visual .glyph{filter:drop-shadow(0 0 24px rgba(0,229,255,.5));transition:transform .5s}
-.project:hover .glyph{transform:scale(1.2) rotate(-6deg)}
-.project .body{padding:24px}
-.project .body h3{font-size:20px;margin-bottom:8px}
-.project .body p{color:var(--muted);font-size:13.5px;line-height:1.6}
-.project .stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
-.project .stack span{font-family:'JetBrains Mono';font-size:10.5px;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted)}
-.project .hover-info{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.16,1,.3,1)}
-.project:hover .hover-info{max-height:260px}
-.hover-info .row{display:flex;gap:10px;margin-top:14px;font-size:13px}
-.hover-info .row b{color:var(--cyan);font-weight:600;min-width:74px;font-family:'JetBrains Mono';font-size:11.5px;padding-top:2px}
-.hover-info .row span{color:#cbd5e1;line-height:1.55}
-.proj-links{display:flex;gap:10px;margin-top:18px}
-/* ---------- TIMELINE ---------- */
-.timeline{position:relative;padding-left:34px;max-width:760px}
-.timeline::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--accent),var(--cyan),var(--success));opacity:.5}
-.t-item{position:relative;padding:0 0 54px 26px;opacity:0;transform:translateX(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
-.t-item.in{opacity:1;transform:none}
-.t-item::before{content:'';position:absolute;left:-32px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--cyan);box-shadow:0 0 16px rgba(0,229,255,.6)}
-.t-item .year{font-family:'JetBrains Mono';color:var(--accent);font-size:13px;letter-spacing:.2em}
-.t-item h3{font-size:24px;margin:8px 0}
-.t-item p{color:var(--muted);font-size:14px;line-height:1.7;max-width:520px}
-/* ---------- TEAM ---------- */
-.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
-.member{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px;display:flex;gap:18px;transition:transform .4s,border-color .4s;position:relative;overflow:hidden}
-.member:hover{transform:translateY(-6px);border-color:rgba(0,229,255,.4)}
-.avatar{width:62px;height:62px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:21px;
-  background:linear-gradient(135deg,var(--accent),var(--cyan));color:#050816}
-.member h3{font-size:17px}
-.member .role{font-family:'JetBrains Mono';font-size:11px;color:var(--cyan);margin:4px 0 10px;letter-spacing:.08em}
-.member .mission{font-size:12.5px;color:var(--muted);line-height:1.55}
-.member .skills{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
-.member .skills span{font-size:10px;padding:3px 9px;border-radius:100px;background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.25);color:#c4b5fd}
-.contrib{display:grid;grid-template-columns:repeat(14,1fr);gap:3px;margin-top:14px}
-.contrib i{height:9px;border-radius:2px;background:rgba(255,255,255,.06)}
-.contrib i.l1{background:rgba(0,255,148,.35)}.contrib i.l2{background:rgba(0,255,148,.6)}.contrib i.l3{background:var(--success);box-shadow:0 0 6px rgba(0,255,148,.5)}
-.member .stats{display:flex;gap:16px;margin-top:12px;font-family:'JetBrains Mono';font-size:10.5px;color:var(--muted)}
-.member .stats b{color:#fff;font-size:13px;display:block}
-/* ---------- LABS / COMMAND CENTER ---------- */
-#labs .shell{background:#070b1c;border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
-.shell-bar{display:flex;align-items:center;gap:8px;padding:14px 18px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border)}
-.shell-bar i{width:11px;height:11px;border-radius:50%}
-.shell-bar i:nth-child(1){background:#ff5f57}.shell-bar i:nth-child(2){background:#febc2e}.shell-bar i:nth-child(3){background:#28c840}
-.shell-bar .title{margin-left:10px;font-family:'JetBrains Mono';font-size:11px;color:var(--muted)}
-.shell-body{padding:22px;display:grid;grid-template-columns:1.2fr .8fr;gap:22px}
-@media(max-width:860px){.shell-body{grid-template-columns:1fr}}
-#term{background:#03040c;border:1px solid var(--border);border-radius:12px;padding:18px;font-family:'JetBrains Mono';font-size:12.5px;height:320px;overflow-y:auto;line-height:1.9}
-#term .t-line{white-space:pre-wrap;word-break:break-word}
-#term .ok{color:var(--success)}#term .cmd{color:var(--cyan)}#term .out{color:#cbd5e1}
-#termInputRow{display:flex;gap:8px;align-items:center;margin-top:8px}
-#termInputRow .ps{color:var(--success)}
-#termInput{flex:1;background:none;border:none;outline:none;color:#fff;font-family:'JetBrains Mono';font-size:12.5px;cursor:none}
-.missions{display:flex;flex-direction:column;gap:12px}
-.mission-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .3s}
-.mission-card:hover{border-color:rgba(0,229,255,.35)}
-.mission-card .m-top{display:flex;justify-content:space-between;font-size:12px}
-.mission-card .m-name{font-weight:600}
-.mission-card .m-status{font-family:'JetBrains Mono';font-size:10px;padding:3px 9px;border-radius:100px}
-.st-live{background:rgba(0,255,148,.1);color:var(--success);border:1px solid rgba(0,255,148,.3)}
-.st-soon{background:rgba(0,229,255,.1);color:var(--cyan);border:1px solid rgba(0,229,255,.3)}
-.mission-card .m-desc{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.5}
-.livefeed{margin-top:22px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:16px;font-family:'JetBrains Mono';font-size:11.5px;height:120px;overflow:hidden;position:relative}
-.livefeed .feed-title{color:var(--cyan);font-size:10px;letter-spacing:.25em;margin-bottom:8px}
-#feedLines div{color:var(--muted);padding:2px 0;animation:feedIn .5s both}
-@keyframes feedIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1}}
-/* ---------- LEADERBOARD ---------- */
-.board{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden}
-.row-lb{display:grid;grid-template-columns:56px 1fr auto auto;gap:16px;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border);transition:background .3s}
-.row-lb:hover{background:rgba(108,99,255,.06)}
-.row-lb:last-child{border-bottom:none}
-.rank{font-family:'Space Grotesk';font-size:20px;font-weight:700;color:var(--muted)}
-.row-lb:nth-child(1) .rank{color:#ffd166}.row-lb:nth-child(2) .rank{color:#cfd8e3}.row-lb:nth-child(3) .rank{color:#cd8f5e}
-.lb-name{display:flex;align-items:center;gap:12px;font-weight:600;font-size:14.5px}
-.lb-name .mini{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;color:#050816;font-size:13px;font-weight:700}
-.lb-track{grid-column:1/-1;height:6px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden}
-.lb-fill{height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width 1.4s cubic-bezier(.16,1,.3,1);box-shadow:0 0 12px rgba(0,229,255,.5)}
-.lb-xp{font-family:'JetBrains Mono';color:var(--cyan);font-size:13px}
-.lb-cat{font-size:10.5px;color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:100px}
-/* ---------- GALLERY ---------- */
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
-.chip{font-size:12px;padding:8px 18px;border-radius:100px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);cursor:none;transition:all .3s;font-family:'JetBrains Mono'}
-.chip:hover,.chip.active{border-color:var(--accent);color:#fff;background:rgba(108,99,255,.15)}
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.g-item{border-radius:16px;overflow:hidden;position:relative;height:200px;border:1px solid var(--border);transition:transform .4s,opacity .4s}
-.g-item:hover{transform:scale(1.03)}
-.g-item .g-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px}
-.g-item .g-cap{position:absolute;left:0;right:0;bottom:0;padding:30px 16px 14px;background:linear-gradient(transparent,rgba(3,4,12,.9));font-size:13px}
-.g-item .g-cap small{display:block;color:var(--muted);font-family:'JetBrains Mono';font-size:10px;margin-top:3px}
-.g-item.hidden-g{display:none}
-/* ---------- JOIN ---------- */
-#join .join-wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;background:linear-gradient(140deg,rgba(108,99,255,.14),rgba(0,229,255,.05));border:1px solid rgba(108,99,255,.3);border-radius:24px;padding:clamp(28px,5vw,60px)}
-@media(max-width:860px){#join .join-wrap{grid-template-columns:1fr}}
-.join-steps{margin-top:26px;display:flex;flex-direction:column;gap:14px}
-.j-step{display:flex;gap:14px;align-items:flex-start}
-.j-step .n{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:rgba(108,99,255,.2);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-size:12px;color:var(--cyan)}
-.j-step p{font-size:13.5px;color:var(--muted);line-height:1.6;padding-top:4px}
-form.app{display:flex;flex-direction:column;gap:14px}
-form.app input,form.app select,form.app textarea{background:rgba(3,4,12,.6);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:#fff;font-family:'Inter';font-size:14px;outline:none;transition:border-color .3s;cursor:none;width:100%}
-form.app input:focus,form.app textarea:focus,form.app select:focus{border-color:var(--cyan)}
-form.app ::placeholder{color:#475569}
-/* ---------- FOOTER ---------- */
-footer{border-top:1px solid var(--border);padding:60px clamp(20px,6vw,80px) 40px;position:relative;z-index:2;background:rgba(3,4,12,.7)}
-.foot-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:36px}
-@media(max-width:860px){.foot-grid{grid-template-columns:1fr 1fr}}
-.foot-grid h4{font-size:13px;letter-spacing:.2em;color:var(--muted);margin-bottom:16px;text-transform:uppercase;font-family:'JetBrains Mono';font-weight:500}
-.foot-grid a{display:block;color:var(--muted);font-size:13.5px;padding:5px 0;transition:color .3s}
-.foot-grid a:hover{color:var(--cyan)}
-.tagline{margin-top:16px;color:var(--muted);font-size:13px;line-height:1.7;max-width:300px}
-.newsletter{display:flex;gap:8px;margin-top:8px}
-.newsletter input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:#fff;font-size:13px;outline:none;cursor:none}
-.foot-bottom{max-width:1280px;margin:44px auto 0;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-family:'JetBrains Mono';font-size:11px;color:#475569}
-/* ---------- ORI CHAT ---------- */
-#oriFab{position:fixed;right:24px;bottom:24px;z-index:950;width:58px;height:58px;border-radius:50%;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:24px;
-  box-shadow:0 8px 32px rgba(108,99,255,.5);transition:transform .3s}
-#oriFab:hover{transform:scale(1.1) rotate(-6deg)}
-#oriPanel{position:fixed;right:24px;bottom:96px;z-index:950;width:min(360px,calc(100vw - 32px));height:480px;max-height:calc(100vh - 140px);
-  background:#0a0f24;border:1px solid var(--border);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;
-  box-shadow:0 30px 90px rgba(0,0,0,.6);transform:translateY(24px) scale(.95);opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.16,1,.3,1)}
-#oriPanel.open{transform:none;opacity:1;pointer-events:auto}
-.ori-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:rgba(108,99,255,.08)}
-.ori-head .orb{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--cyan),var(--accent));animation:orb 3s ease-in-out infinite}
-@keyframes orb{50%{transform:scale(1.12)}}
-.ori-head b{font-size:14px;display:block}
-.ori-head small{font-family:'JetBrains Mono';font-size:10px;color:var(--success)}
-#oriMsgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:82%;padding:11px 14px;border-radius:14px;font-size:13px;line-height:1.55;animation:feedIn .4s both}
-.msg.bot{background:rgba(108,99,255,.14);border:1px solid rgba(108,99,255,.25);align-self:flex-start;border-bottom-left-radius:4px}
-.msg.user{background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.25);align-self:flex-end;border-bottom-right-radius:4px}
-.ori-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 10px}
-.ori-chips button{font-size:10.5px;padding:5px 11px;border-radius:100px;border:1px solid var(--border);background:none;color:var(--muted);cursor:none;font-family:'JetBrains Mono';transition:all .3s}
-.ori-chips button:hover{border-color:var(--cyan);color:var(--cyan)}
-.ori-input{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border)}
-.ori-input input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:13px;cursor:none}
-.ori-input button{background:none;border:none;font-size:17px;cursor:none}
-/* ---------- MODAL / DEV / TOAST ---------- */
-.modal-bg{position:fixed;inset:0;background:rgba(3,4,12,.8);backdrop-filter:blur(8px);z-index:960;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s}
-.modal-bg.open{opacity:1;pointer-events:auto}
-.modal{width:min(560px,92vw);max-height:88vh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:36px;transform:translateY(30px) scale(.96);transition:transform .45s cubic-bezier(.16,1,.3,1)}
-.modal-bg.open .modal{transform:none}
-.modal h2{font-size:26px;margin-bottom:6px}
-.modal .sub{color:var(--muted);font-size:13.5px;margin-bottom:24px}
-.modal .close-x{float:right;background:none;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:none;font-size:15px;transition:all .3s}
-.modal .close-x:hover{border-color:#ff5f57;color:#ff5f57}
-#devOverlay{position:fixed;inset:0;background:#01020a;z-index:9700;padding:clamp(20px,6vw,70px);font-family:'JetBrains Mono';font-size:clamp(11px,1.5vw,14px);color:var(--success);overflow-y:auto;display:none;line-height:2}
-#devOverlay .dv-title{color:var(--cyan);letter-spacing:.3em;font-size:clamp(16px,2.4vw,26px);margin-bottom:20px}
-#devOverlay .warn{color:#ffd166}#devOverlay .red{color:#ff5f57}
-#devOverlay .x{position:absolute;top:24px;right:28px;background:none;border:1px solid var(--border);color:#fff;padding:8px 16px;border-radius:8px;cursor:none;font-family:'JetBrains Mono'}
-#toasts{position:fixed;left:24px;bottom:24px;z-index:9800;display:flex;flex-direction:column;gap:10px}
-.toast{background:var(--card);border:1px solid rgba(255,209,102,.4);border-radius:14px;padding:14px 20px;display:flex;gap:12px;align-items:center;font-size:13.5px;box-shadow:0 16px 50px rgba(0,0,0,.5);animation:toastIn .5s cubic-bezier(.16,1,.3,1) both;max-width:340px}
-.toast .t-ico{font-size:22px}
-.toast b{color:#ffd166;display:block;font-size:12px;letter-spacing:.15em;font-family:'JetBrains Mono'}
-@keyframes toastIn{from{opacity:0;transform:translateX(-30px)}to{opacity:1}}
-.toast.out{transition:opacity .5s,transform .5s;opacity:0;transform:translateX(-30px)}
-.big-quote{text-align:center;padding:130px 24px;font-family:'Space Grotesk';font-size:clamp(22px,3.6vw,40px);max-width:900px;margin:0 auto;line-height:1.35}
-.big-quote span{color:var(--muted);font-size:.55em;display:block;margin-top:22px;font-family:'JetBrains Mono';letter-spacing:.25em}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORIGIN — We Don't Learn Technology. We Create It.</title>
+  <meta name="description" content="ORIGIN — the operating system for innovators. Join the people building tomorrow.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050816;
+      --card: #0F172A;
+      --accent: #6C63FF;
+      --cyan: #00E5FF;
+      --text: #FFFFFF;
+      --muted: #94A3B8;
+      --success: #00FF94;
+      --border: rgba(255, 255, 255, 0.08);
+      --neon: 0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+      transition: filter .6s;
+    }
+
+    body.neon {
+      --accent: #00FF94;
+      --cyan: #FF00E5;
+    }
+
+    body.neon #bg {
+      filter: hue-rotate(120deg) saturate(1.6)
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #fff
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -0.02em
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    canvas#bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      transition: filter .8s
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: .05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    /* ---------- CURSOR ---------- */
+    #cursor {
+      position: fixed;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--cyan);
+      z-index: 9999;
+      pointer-events: none;
+      mix-blend-mode: difference;
+      transform: translate(-50%, -50%);
+      transition: width .25s, height .25s, background .25s
+    }
+
+    #cursorRing {
+      position: fixed;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, .35);
+      z-index: 9998;
+      pointer-events: none;
+      transform: translate(-50%, -50%)
+    }
+
+    #cursor.hovering {
+      width: 56px;
+      height: 56px;
+      background: #fff
+    }
+
+    @media(hover:none) {
+
+      #cursor,
+      #cursorRing {
+        display: none
+      }
+
+      body {
+        cursor: auto
+      }
+    }
+
+    /* ---------- BOOT ---------- */
+    #boot {
+      position: fixed;
+      inset: 0;
+      background: #03040c;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .9s, visibility .9s
+    }
+
+    #boot.done {
+      opacity: 0;
+      visibility: hidden
+    }
+
+    .boot-inner {
+      width: min(560px, 88vw)
+    }
+
+    #bootLog {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(11px, 1.6vw, 14px);
+      color: var(--success);
+      min-height: 180px;
+      line-height: 1.9;
+      text-shadow: 0 0 12px rgba(0, 255, 148, .4)
+    }
+
+    #bootLog .dim {
+      color: #3d4a63
+    }
+
+    #bootLog .acc {
+      color: var(--cyan)
+    }
+
+    .boot-bar {
+      height: 2px;
+      background: rgba(255, 255, 255, .08);
+      margin-top: 26px;
+      border-radius: 2px;
+      overflow: hidden
+    }
+
+    #bootFill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      box-shadow: 0 0 18px var(--cyan);
+      transition: width .3s
+    }
+
+    #bootPct {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 10px;
+      text-align: right
+    }
+
+    .caret {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: var(--success);
+      animation: blink 0.8s steps(1) infinite;
+      vertical-align: -2px
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0
+      }
+    }
+
+    /* ---------- NAV ---------- */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px clamp(18px, 4vw, 48px);
+      backdrop-filter: blur(16px);
+      background: linear-gradient(rgba(5, 8, 22, .75), rgba(5, 8, 22, .25));
+      border-bottom: 1px solid var(--border);
+      transform: translateY(-110%);
+      transition: transform .8s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    nav.show {
+      transform: translateY(0)
+    }
+
+    .logo {
+      font-family: 'Space Grotesk';
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: .14em;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .logo .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 12px var(--success);
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: .4
+      }
+    }
+
+    .nav-links {
+      display: flex;
+      gap: clamp(12px, 2.4vw, 30px);
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    .nav-links a {
+      position: relative;
+      transition: color .3s;
+      padding: 4px 0
+    }
+
+    .nav-links a:hover {
+      color: #fff
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1px;
+      background: var(--cyan);
+      transition: width .35s
+    }
+
+    .nav-links a:hover::after {
+      width: 100%
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .04);
+      color: #fff;
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s, box-shadow .3s;
+      backdrop-filter: blur(8px)
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px rgba(108, 99, 255, .35)
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border: none
+    }
+
+    .btn.primary:hover {
+      box-shadow: 0 0 40px rgba(108, 99, 255, .6)
+    }
+
+    .btn.small {
+      padding: 8px 16px;
+      font-size: 12px
+    }
+
+    @media(max-width:860px) {
+      .nav-links {
+        display: none
+      }
+    }
+
+    /* ---------- HERO ---------- */
+    main {
+      position: relative;
+      z-index: 2
+    }
+
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 120px 20px 60px;
+      position: relative
+    }
+
+    .os-tag {
+      font-family: 'JetBrains Mono';
+      font-size: 12px;
+      color: var(--cyan);
+      letter-spacing: .3em;
+      border: 1px solid rgba(0, 229, 255, .25);
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: rgba(0, 229, 255, .05);
+      opacity: 0
+    }
+
+    #hero h1 {
+      font-size: clamp(34px, 7.2vw, 88px);
+      line-height: 1.04;
+      margin: 28px 0 10px;
+      max-width: 1000px;
+      opacity: 0
+    }
+
+    #hero h1 .line {
+      display: block
+    }
+
+    .grad {
+      background: linear-gradient(100deg, var(--accent), var(--cyan) 60%, var(--success));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
+    }
+
+    #typeLine {
+      font-family: 'JetBrains Mono';
+      color: var(--muted);
+      font-size: clamp(13px, 1.8vw, 17px);
+      min-height: 26px;
+      margin-top: 14px;
+      opacity: 0
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      margin-top: 42px;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .25em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px
+    }
+
+    .scroll-hint .wheel {
+      width: 1px;
+      height: 38px;
+      background: linear-gradient(var(--cyan), transparent);
+      animation: drop 1.6s infinite
+    }
+
+    @keyframes drop {
+      from {
+        transform: scaleY(0);
+        transform-origin: top
+      }
+
+      50% {
+        transform: scaleY(1)
+      }
+
+      to {
+        transform: scaleY(0);
+        transform-origin: bottom
+      }
+    }
+
+    .glitch {
+      position: relative
+    }
+
+    .glitch.glitching::before,
+    .glitch.glitching::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0
+    }
+
+    .glitch.glitching::before {
+      color: var(--cyan);
+      animation: gl1 .35s steps(2) both;
+      clip-path: inset(20% 0 40% 0)
+    }
+
+    .glitch.glitching::after {
+      color: #ff2d78;
+      animation: gl2 .35s steps(2) both;
+      clip-path: inset(60% 0 10% 0)
+    }
+
+    @keyframes gl1 {
+      0% {
+        transform: translate(-6px, 2px)
+      }
+
+      50% {
+        transform: translate(4px, -3px)
+      }
+
+      100% {
+        transform: none
+      }
+    }
+
+    @keyframes gl2 {
+      0% {
+        transform: translate(5px, -2px)
+      }
+
+      50% {
+        transform: translate(-4px, 3px)
+      }
+
+      100% {
+        transform: none
+      }
+    }
+
+    /* ---------- SECTIONS ---------- */
+    section {
+      padding: 110px clamp(20px, 6vw, 80px);
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative
+    }
+
+    .sec-head {
+      margin-bottom: 56px
+    }
+
+    .sec-kicker {
+      font-family: 'JetBrains Mono';
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: .3em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .sec-kicker::before {
+      content: '';
+      width: 34px;
+      height: 1px;
+      background: var(--accent)
+    }
+
+    .sec-head h2 {
+      font-size: clamp(28px, 4.6vw, 52px)
+    }
+
+    .sec-head p {
+      color: var(--muted);
+      margin-top: 14px;
+      max-width: 640px;
+      line-height: 1.7;
+      font-size: 15px
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(46px);
+      transition: opacity .9s cubic-bezier(.16, 1, .3, 1), transform .9s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: none
+    }
+
+    .reveal.d1 {
+      transition-delay: .1s
+    }
+
+    .reveal.d2 {
+      transition-delay: .2s
+    }
+
+    .reveal.d3 {
+      transition-delay: .3s
+    }
+
+    .reveal.d4 {
+      transition-delay: .4s
+    }
+
+    /* ---------- STATS ---------- */
+    #stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      max-width: 1280px
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .4s, border-color .4s
+    }
+
+    .stat:hover {
+      transform: translateY(-6px);
+      border-color: rgba(108, 99, 255, .5)
+    }
+
+    .stat::after {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -40%;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(108, 99, 255, .18), transparent 70%)
+    }
+
+    .stat .num {
+      font-family: 'Space Grotesk';
+      font-size: clamp(30px, 3.4vw, 44px);
+      font-weight: 700;
+      background: linear-gradient(120deg, #fff, var(--cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
+    }
+
+    .stat .lbl {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .15em;
+      margin-top: 8px;
+      text-transform: uppercase
+    }
+
+    /* ---------- DOMAINS ---------- */
+    .domains {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px
+    }
+
+    .domain {
+      background: linear-gradient(160deg, var(--card), rgba(15, 23, 42, .4));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 34px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .45s cubic-bezier(.16, 1, .3, 1), border-color .45s;
+      min-height: 210px
+    }
+
+    .domain:hover {
+      transform: translateY(-8px) scale(1.015);
+      border-color: rgba(0, 229, 255, .4)
+    }
+
+    .domain .ico {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+      background: rgba(108, 99, 255, .12);
+      border: 1px solid rgba(108, 99, 255, .3)
+    }
+
+    .domain h3 {
+      font-size: 20px;
+      margin-bottom: 10px
+    }
+
+    .domain p {
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.65
+    }
+
+    .domain .tags {
+      position: absolute;
+      bottom: -60px;
+      left: 28px;
+      right: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      transition: bottom .45s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .domain:hover .tags {
+      bottom: 24px
+    }
+
+    .domain .tag {
+      font-family: 'JetBrains Mono';
+      font-size: 10.5px;
+      padding: 5px 10px;
+      border-radius: 100px;
+      background: rgba(0, 229, 255, .08);
+      border: 1px solid rgba(0, 229, 255, .25);
+      color: var(--cyan)
+    }
+
+    .domain .desc {
+      transition: opacity .35s
+    }
+
+    .domain:hover .desc {
+      opacity: 0
+    }
+
+    /* ---------- PROJECTS ---------- */
+    .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 22px;
+      perspective: 1400px
+    }
+
+    .project {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: border-color .4s;
+      position: relative
+    }
+
+    .project:hover {
+      border-color: rgba(108, 99, 255, .55)
+    }
+
+    .project .visual {
+      height: 170px;
+      position: relative;
+      background:
+        radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(108, 99, 255, .35), transparent 45%), linear-gradient(140deg, #111a33, #0a0f22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 46px
+    }
+
+    .project .visual .glyph {
+      filter: drop-shadow(0 0 24px rgba(0, 229, 255, .5));
+      transition: transform .5s
+    }
+
+    .project:hover .glyph {
+      transform: scale(1.2) rotate(-6deg)
+    }
+
+    .project .body {
+      padding: 24px
+    }
+
+    .project .body h3 {
+      font-size: 20px;
+      margin-bottom: 8px
+    }
+
+    .project .body p {
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.6
+    }
+
+    .project .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px
+    }
+
+    .project .stack span {
+      font-family: 'JetBrains Mono';
+      font-size: 10.5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--border);
+      color: var(--muted)
+    }
+
+    .project .hover-info {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .5s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .project:hover .hover-info {
+      max-height: 260px
+    }
+
+    .hover-info .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      font-size: 13px
+    }
+
+    .hover-info .row b {
+      color: var(--cyan);
+      font-weight: 600;
+      min-width: 74px;
+      font-family: 'JetBrains Mono';
+      font-size: 11.5px;
+      padding-top: 2px
+    }
+
+    .hover-info .row span {
+      color: #cbd5e1;
+      line-height: 1.55
+    }
+
+    .proj-links {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px
+    }
+
+    /* ---------- TIMELINE ---------- */
+    .timeline {
+      position: relative;
+      padding-left: 34px;
+      max-width: 760px
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(var(--accent), var(--cyan), var(--success));
+      opacity: .5
+    }
+
+    .t-item {
+      position: relative;
+      padding: 0 0 54px 26px;
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity .8s cubic-bezier(.16, 1, .3, 1), transform .8s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .t-item.in {
+      opacity: 1;
+      transform: none
+    }
+
+    .t-item::before {
+      content: '';
+      position: absolute;
+      left: -32px;
+      top: 6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 16px rgba(0, 229, 255, .6)
+    }
+
+    .t-item .year {
+      font-family: 'JetBrains Mono';
+      color: var(--accent);
+      font-size: 13px;
+      letter-spacing: .2em
+    }
+
+    .t-item h3 {
+      font-size: 24px;
+      margin: 8px 0
+    }
+
+    .t-item p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 520px
+    }
+
+    /* ---------- TEAM ---------- */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px
+    }
+
+    .member {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px;
+      display: flex;
+      gap: 18px;
+      transition: transform .4s, border-color .4s;
+      position: relative;
+      overflow: hidden
+    }
+
+    .member:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0, 229, 255, .4)
+    }
+
+    .avatar {
+      width: 62px;
+      height: 62px;
+      border-radius: 16px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk';
+      font-weight: 700;
+      font-size: 21px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      color: #050816
+    }
+
+    .member h3 {
+      font-size: 17px
+    }
+
+    .member .role {
+      font-family: 'JetBrains Mono';
+      font-size: 11px;
+      color: var(--cyan);
+      margin: 4px 0 10px;
+      letter-spacing: .08em
+    }
+
+    .member .mission {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55
+    }
+
+    .member .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 12px
+    }
+
+    .member .skills span {
+      font-size: 10px;
+      padding: 3px 9px;
+      border-radius: 100px;
+      background: rgba(108, 99, 255, .1);
+      border: 1px solid rgba(108, 99, 255, .25);
+      color: #c4b5fd
+    }
+
+    .contrib {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 3px;
+      margin-top: 14px
+    }
+
+    .contrib i {
+      height: 9px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, .06)
+    }
+
+    .contrib i.l1 {
+      background: rgba(0, 255, 148, .35)
+    }
+
+    .contrib i.l2 {
+      background: rgba(0, 255, 148, .6)
+    }
+
+    .contrib i.l3 {
+      background: var(--success);
+      box-shadow: 0 0 6px rgba(0, 255, 148, .5)
+    }
+
+    .member .stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      font-family: 'JetBrains Mono';
+      font-size: 10.5px;
+      color: var(--muted)
+    }
+
+    .member .stats b {
+      color: #fff;
+      font-size: 13px;
+      display: block
+    }
+
+    /* ---------- LABS / COMMAND CENTER ---------- */
+    #labs .shell {
+      background: #070b1c;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .5)
+    }
+
+    .shell-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, .03);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .shell-bar i {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%
+    }
+
+    .shell-bar i:nth-child(1) {
+      background: #ff5f57
+    }
+
+    .shell-bar i:nth-child(2) {
+      background: #febc2e
+    }
+
+    .shell-bar i:nth-child(3) {
+      background: #28c840
+    }
+
+    .shell-bar .title {
+      margin-left: 10px;
+      font-family: 'JetBrains Mono';
+      font-size: 11px;
+      color: var(--muted)
+    }
+
+    .shell-body {
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 22px
+    }
+
+    @media(max-width:860px) {
+      .shell-body {
+        grid-template-columns: 1fr
+      }
+    }
+
+    #term {
+      background: #03040c;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      font-family: 'JetBrains Mono';
+      font-size: 12.5px;
+      height: 320px;
+      overflow-y: auto;
+      line-height: 1.9
+    }
+
+    #term .t-line {
+      white-space: pre-wrap;
+      word-break: break-word
+    }
+
+    #term .ok {
+      color: var(--success)
+    }
+
+    #term .cmd {
+      color: var(--cyan)
+    }
+
+    #term .out {
+      color: #cbd5e1
+    }
+
+    #termInputRow {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px
+    }
+
+    #termInputRow .ps {
+      color: var(--success)
+    }
+
+    #termInput {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: 'JetBrains Mono';
+      font-size: 12.5px;
+      cursor: none
+    }
+
+    .missions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px
+    }
+
+    .mission-card {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      transition: border-color .3s
+    }
+
+    .mission-card:hover {
+      border-color: rgba(0, 229, 255, .35)
+    }
+
+    .mission-card .m-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px
+    }
+
+    .mission-card .m-name {
+      font-weight: 600
+    }
+
+    .mission-card .m-status {
+      font-family: 'JetBrains Mono';
+      font-size: 10px;
+      padding: 3px 9px;
+      border-radius: 100px
+    }
+
+    .st-live {
+      background: rgba(0, 255, 148, .1);
+      color: var(--success);
+      border: 1px solid rgba(0, 255, 148, .3)
+    }
+
+    .st-soon {
+      background: rgba(0, 229, 255, .1);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 229, 255, .3)
+    }
+
+    .mission-card .m-desc {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+      line-height: 1.5
+    }
+
+    .livefeed {
+      margin-top: 22px;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'JetBrains Mono';
+      font-size: 11.5px;
+      height: 120px;
+      overflow: hidden;
+      position: relative
+    }
+
+    .livefeed .feed-title {
+      color: var(--cyan);
+      font-size: 10px;
+      letter-spacing: .25em;
+      margin-bottom: 8px
+    }
+
+    #feedLines div {
+      color: var(--muted);
+      padding: 2px 0;
+      animation: feedIn .5s both
+    }
+
+    @keyframes feedIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    /* ---------- LEADERBOARD ---------- */
+    .board {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden
+    }
+
+    .row-lb {
+      display: grid;
+      grid-template-columns: 56px 1fr auto auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      transition: background .3s
+    }
+
+    .row-lb:hover {
+      background: rgba(108, 99, 255, .06)
+    }
+
+    .row-lb:last-child {
+      border-bottom: none
+    }
+
+    .rank {
+      font-family: 'Space Grotesk';
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted)
+    }
+
+    .row-lb:nth-child(1) .rank {
+      color: #ffd166
+    }
+
+    .row-lb:nth-child(2) .rank {
+      color: #cfd8e3
+    }
+
+    .row-lb:nth-child(3) .rank {
+      color: #cd8f5e
+    }
+
+    .lb-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 14.5px
+    }
+
+    .lb-name .mini {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #050816;
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .lb-track {
+      grid-column: 1/-1;
+      height: 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, .06);
+      overflow: hidden
+    }
+
+    .lb-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      transition: width 1.4s cubic-bezier(.16, 1, .3, 1);
+      box-shadow: 0 0 12px rgba(0, 229, 255, .5)
+    }
+
+    .lb-xp {
+      font-family: 'JetBrains Mono';
+      color: var(--cyan);
+      font-size: 13px
+    }
+
+    .lb-cat {
+      font-size: 10.5px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 100px
+    }
+
+    /* ---------- GALLERY ---------- */
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .03);
+      color: var(--muted);
+      cursor: none;
+      transition: all .3s;
+      font-family: 'JetBrains Mono'
+    }
+
+    .chip:hover,
+    .chip.active {
+      border-color: var(--accent);
+      color: #fff;
+      background: rgba(108, 99, 255, .15)
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px
+    }
+
+    .g-item {
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      height: 200px;
+      border: 1px solid var(--border);
+      transition: transform .4s, opacity .4s
+    }
+
+    .g-item:hover {
+      transform: scale(1.03)
+    }
+
+    .g-item .g-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px
+    }
+
+    .g-item .g-cap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 30px 16px 14px;
+      background: linear-gradient(transparent, rgba(3, 4, 12, .9));
+      font-size: 13px
+    }
+
+    .g-item .g-cap small {
+      display: block;
+      color: var(--muted);
+      font-family: 'JetBrains Mono';
+      font-size: 10px;
+      margin-top: 3px
+    }
+
+    .g-item.hidden-g {
+      display: none
+    }
+
+    /* ---------- JOIN ---------- */
+    #join .join-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      background: linear-gradient(140deg, rgba(108, 99, 255, .14), rgba(0, 229, 255, .05));
+      border: 1px solid rgba(108, 99, 255, .3);
+      border-radius: 24px;
+      padding: clamp(28px, 5vw, 60px)
+    }
+
+    @media(max-width:860px) {
+      #join .join-wrap {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .join-steps {
+      margin-top: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .j-step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start
+    }
+
+    .j-step .n {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: rgba(108, 99, 255, .2);
+      border: 1px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono';
+      font-size: 12px;
+      color: var(--cyan)
+    }
+
+    .j-step p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.6;
+      padding-top: 4px
+    }
+
+    form.app {
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    form.app input,
+    form.app select,
+    form.app textarea {
+      background: rgba(3, 4, 12, .6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: #fff;
+      font-family: 'Inter';
+      font-size: 14px;
+      outline: none;
+      transition: border-color .3s;
+      cursor: none;
+      width: 100%
+    }
+
+    form.app input:focus,
+    form.app textarea:focus,
+    form.app select:focus {
+      border-color: var(--cyan)
+    }
+
+    form.app ::placeholder {
+      color: #475569
+    }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 60px clamp(20px, 6vw, 80px) 40px;
+      position: relative;
+      z-index: 2;
+      background: rgba(3, 4, 12, .7)
+    }
+
+    .foot-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.4fr;
+      gap: 36px
+    }
+
+    @media(max-width:860px) {
+      .foot-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    .foot-grid h4 {
+      font-size: 13px;
+      letter-spacing: .2em;
+      color: var(--muted);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono';
+      font-weight: 500
+    }
+
+    .foot-grid a {
+      display: block;
+      color: var(--muted);
+      font-size: 13.5px;
+      padding: 5px 0;
+      transition: color .3s
+    }
+
+    .foot-grid a:hover {
+      color: var(--cyan)
+    }
+
+    .tagline {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 300px
+    }
+
+    .newsletter {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px
+    }
+
+    .newsletter input {
+      flex: 1;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      cursor: none
+    }
+
+    .foot-bottom {
+      max-width: 1280px;
+      margin: 44px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono';
+      font-size: 11px;
+      color: #475569
+    }
+
+    /* ---------- ORI CHAT ---------- */
+    #oriFab {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 950;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: none;
+      cursor: none;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 8px 32px rgba(108, 99, 255, .5);
+      transition: transform .3s
+    }
+
+    #oriFab:hover {
+      transform: scale(1.1) rotate(-6deg)
+    }
+
+    #oriPanel {
+      position: fixed;
+      right: 24px;
+      bottom: 96px;
+      z-index: 950;
+      width: min(360px, calc(100vw - 32px));
+      height: 480px;
+      max-height: calc(100vh - 140px);
+      background: #0a0f24;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, .6);
+      transform: translateY(24px) scale(.95);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .4s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    #oriPanel.open {
+      transform: none;
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .ori-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(108, 99, 255, .08)
+    }
+
+    .ori-head .orb {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--cyan), var(--accent));
+      animation: orb 3s ease-in-out infinite
+    }
+
+    @keyframes orb {
+      50% {
+        transform: scale(1.12)
+      }
+    }
+
+    .ori-head b {
+      font-size: 14px;
+      display: block
+    }
+
+    .ori-head small {
+      font-family: 'JetBrains Mono';
+      font-size: 10px;
+      color: var(--success)
+    }
+
+    #oriMsgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .msg {
+      max-width: 82%;
+      padding: 11px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      animation: feedIn .4s both
+    }
+
+    .msg.bot {
+      background: rgba(108, 99, 255, .14);
+      border: 1px solid rgba(108, 99, 255, .25);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px
+    }
+
+    .msg.user {
+      background: rgba(0, 229, 255, .12);
+      border: 1px solid rgba(0, 229, 255, .25);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px
+    }
+
+    .ori-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 0 16px 10px
+    }
+
+    .ori-chips button {
+      font-size: 10.5px;
+      padding: 5px 11px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--muted);
+      cursor: none;
+      font-family: 'JetBrains Mono';
+      transition: all .3s
+    }
+
+    .ori-chips button:hover {
+      border-color: var(--cyan);
+      color: var(--cyan)
+    }
+
+    .ori-input {
+      display: flex;
+      gap: 8px;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border)
+    }
+
+    .ori-input input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 13px;
+      cursor: none
+    }
+
+    .ori-input button {
+      background: none;
+      border: none;
+      font-size: 17px;
+      cursor: none
+    }
+
+    /* ---------- MODAL / DEV / TOAST ---------- */
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 4, 12, .8);
+      backdrop-filter: blur(8px);
+      z-index: 960;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .4s
+    }
+
+    .modal-bg.open {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .modal {
+      width: min(560px, 92vw);
+      max-height: 88vh;
+      overflow-y: auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 36px;
+      transform: translateY(30px) scale(.96);
+      transition: transform .45s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .modal-bg.open .modal {
+      transform: none
+    }
+
+    .modal h2 {
+      font-size: 26px;
+      margin-bottom: 6px
+    }
+
+    .modal .sub {
+      color: var(--muted);
+      font-size: 13.5px;
+      margin-bottom: 24px
+    }
+
+    .modal .close-x {
+      float: right;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: none;
+      font-size: 15px;
+      transition: all .3s
+    }
+
+    .modal .close-x:hover {
+      border-color: #ff5f57;
+      color: #ff5f57
+    }
+
+    #devOverlay {
+      position: fixed;
+      inset: 0;
+      background: #01020a;
+      z-index: 9700;
+      padding: clamp(20px, 6vw, 70px);
+      font-family: 'JetBrains Mono';
+      font-size: clamp(11px, 1.5vw, 14px);
+      color: var(--success);
+      overflow-y: auto;
+      display: none;
+      line-height: 2
+    }
+
+    #devOverlay .dv-title {
+      color: var(--cyan);
+      letter-spacing: .3em;
+      font-size: clamp(16px, 2.4vw, 26px);
+      margin-bottom: 20px
+    }
+
+    #devOverlay .warn {
+      color: #ffd166
+    }
+
+    #devOverlay .red {
+      color: #ff5f57
+    }
+
+    #devOverlay .x {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      background: none;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: none;
+      font-family: 'JetBrains Mono'
+    }
+
+    #toasts {
+      position: fixed;
+      left: 24px;
+      bottom: 24px;
+      z-index: 9800;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .toast {
+      background: var(--card);
+      border: 1px solid rgba(255, 209, 102, .4);
+      border-radius: 14px;
+      padding: 14px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 13.5px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, .5);
+      animation: toastIn .5s cubic-bezier(.16, 1, .3, 1) both;
+      max-width: 340px
+    }
+
+    .toast .t-ico {
+      font-size: 22px
+    }
+
+    .toast b {
+      color: #ffd166;
+      display: block;
+      font-size: 12px;
+      letter-spacing: .15em;
+      font-family: 'JetBrains Mono'
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(-30px)
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .toast.out {
+      transition: opacity .5s, transform .5s;
+      opacity: 0;
+      transform: translateX(-30px)
+    }
+
+    .big-quote {
+      text-align: center;
+      padding: 130px 24px;
+      font-family: 'Space Grotesk';
+      font-size: clamp(22px, 3.6vw, 40px);
+      max-width: 900px;
+      margin: 0 auto;
+      line-height: 1.35
+    }
+
+    .big-quote span {
+      color: var(--muted);
+      font-size: .55em;
+      display: block;
+      margin-top: 22px;
+      font-family: 'JetBrains Mono';
+      letter-spacing: .25em
+    }
+  </style>
 </head>
+
 <body>
-<div id="cursor"></div><div id="cursorRing"></div>
-<canvas id="bg"></canvas>
-<div class="grain"></div>
+  <div id="cursor"></div>
+  <div id="cursorRing"></div>
+  <canvas id="bg"></canvas>
+  <div class="grain"></div>
 
-<!-- BOOT -->
-<div id="boot">
-  <div class="boot-inner">
-    <div id="bootLog"></div>
-    <div class="boot-bar"><div id="bootFill"></div></div>
-    <div id="bootPct">0%</div>
-  </div>
-</div>
-
-<!-- NAV -->
-<nav id="nav">
-  <a href="#hero" class="logo"><span class="dot"></span>ORIGIN<span class="mono" style="font-size:10px;color:var(--muted);letter-spacing:.2em">&nbsp;OS v3.1</span></a>
-  <div class="nav-links">
-    <a href="#domains">Domains</a><a href="#projects">Projects</a><a href="#events">Timeline</a>
-    <a href="#team">Members</a><a href="#labs">Labs</a><a href="#leaderboard">Leaderboard</a><a href="#gallery">Gallery</a>
-  </div>
-  <button class="btn primary small magnetic" onclick="openApply()">Join ORIGIN</button>
-</nav>
-
-<main>
-<!-- HERO -->
-<section id="hero" style="max-width:none">
-  <div class="os-tag reveal" id="osTag">ORIGIN&nbsp;OS&nbsp;//&nbsp;DEPARTMENTAL&nbsp;TECHNICAL&nbsp;CLUB</div>
-  <h1 id="heroTitle" class="glitch" data-text="BUILD THE FUTURE">
-    <span class="line">Don't Join a Club.</span>
-    <span class="line grad">Join the People Building Tomorrow.</span>
-  </h1>
-  <div id="typeLine"><span id="typeText"></span><span class="caret"></span></div>
-  <div class="hero-ctas" id="heroCtas">
-    <button class="btn primary magnetic" onclick="openApply()">Join ORIGIN →</button>
-    <a class="btn magnetic" href="#projects">Explore Projects</a>
-    <button class="btn magnetic" onclick="openTerminalSection()">⌁ Launch Terminal</button>
-  </div>
-  <div class="scroll-hint"><span>SCROLL</span><div class="wheel"></div></div>
-</section>
-
-<!-- STATS -->
-<section id="statsWrap" style="padding-top:20px">
-  <div class="sec-head reveal"><div class="sec-kicker">LIVE STATISTICS</div><h2>The numbers don't sleep.<br>Neither do we.</h2></div>
-  <div id="stats">
-    <div class="stat reveal"><div class="num" data-target="46">0</div><div class="lbl">Projects Built</div></div>
-    <div class="stat reveal d1"><div class="num" data-target="31">0</div><div class="lbl">Hackathons</div></div>
-    <div class="stat reveal d2"><div class="num" data-target="147">0</div><div class="lbl">Members</div></div>
-    <div class="stat reveal d3"><div class="num" data-target="72">0</div><div class="lbl">Awards</div></div>
-    <div class="stat reveal d4"><div class="num" data-target="14892">0</div><div class="lbl">Hours Coded</div></div>
-    <div class="stat reveal d4"><div class="num">∞</div><div class="lbl">Coffee Consumed</div></div>
-  </div>
-</section>
-
-<!-- DOMAINS -->
-<section id="domains">
-  <div class="sec-head reveal"><div class="sec-kicker">OUR DOMAINS</div><h2>Pick a weapon.<br>Master it. Build with it.</h2><p>Eight divisions. One obsession — shipping real things that solve real problems.</p></div>
-  <div class="domains">
-    <div class="domain reveal"><div class="ico">◈</div><h3>Artificial Intelligence</h3><p class="desc">LLMs, computer vision, and agents that actually do work.</p><div class="tags"><span class="tag">PyTorch</span><span class="tag">LangChain</span><span class="tag">CV</span></div></div>
-    <div class="domain reveal d1"><div class="ico">◇</div><h3>Web Engineering</h3><p class="desc">Interfaces so smooth they feel illegal.</p><div class="tags"><span class="tag">Next.js</span><span class="tag">Three.js</span><span class="tag">GSAP</span></div></div>
-    <div class="domain reveal d2"><div class="ico">▣</div><h3>App Development</h3><p class="desc">From idea to App Store in one semester.</p><div class="tags"><span class="tag">Flutter</span><span class="tag">Kotlin</span><span class="tag">Swift</span></div></div>
-    <div class="domain reveal d3"><div class="ico">⛨</div><h3>Cyber Security</h3><p class="desc">Breaking things legally. Fixing them properly.</p><div class="tags"><span class="tag">CTF</span><span class="tag">Pentesting</span><span class="tag">OSINT</span></div></div>
-    <div class="domain reveal"><div class="ico">☁</div><h3>Cloud & DevOps</h3><p class="desc">Infrastructure that survives demo day.</p><div class="tags"><span class="tag">AWS</span><span class="tag">Docker</span><span class="tag">CI/CD</span></div></div>
-    <div class="domain reveal d1"><div class="ico">⌁</div><h3>IoT & Embedded</h3><p class="desc">Software that touches the physical world.</p><div class="tags"><span class="tag">Arduino</span><span class="tag">Raspberry Pi</span><span class="tag">RTOS</span></div></div>
-    <div class="domain reveal d2"><div class="ico">⚙</div><h3>Robotics</h3><p class="desc">Machines that move, sense, and win nationals.</p><div class="tags"><span class="tag">ROS</span><span class="tag">CAD</span><span class="tag">Control</span></div></div>
-    <div class="domain reveal d3"><div class="ico">⑂</div><h3>Open Source</h3><p class="desc">Code the whole world can read. Reputation you can keep.</p><div class="tags"><span class="tag">Git</span><span class="tag">PRs</span><span class="tag">Community</span></div></div>
-  </div>
-</section>
-
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="sec-head reveal"><div class="sec-kicker">SELECTED PROJECTS</div><h2>Ideas don't stay ideas here.<br>We build them.</h2><p>Hover a project. It rises and reveals everything — the problem, the stack, the team, the proof.</p></div>
-  <div class="projects">
-    <div class="project reveal"><div class="visual"><span class="glyph">🛰</span></div><div class="body">
-      <h3>AeroSense</h3><p>Drone-based crop disease detection using edge AI — scanned 40,000+ acres with a student budget.</p>
-      <div class="stack"><span>PyTorch</span><span>Jetson Nano</span><span>React</span></div>
-      <div class="hover-info">
-        <div class="row"><b>PROBLEM</b><span>Farmers detect crop disease 2–3 weeks too late, losing 30% yield.</span></div>
-        <div class="row"><b>SOLUTION</b><span>Autonomous drone flights + on-device vision model classifying leaf stress in real time.</span></div>
-        <div class="row"><b>TEAM</b><span>5 members · AI × Robotics × Web</span></div>
-        <div class="row"><b>AWARD</b><span>🏆 Winner — National AgriTech Hackathon 2025</span></div>
-        <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶ Live Demo</button></div>
-      </div></div></div>
-    <div class="project reveal d1"><div class="visual"><span class="glyph">🧠</span></div><div class="body">
-      <h3>NeuraTutor</h3><p>An AI teaching assistant that generates personalized learning paths from a student's own mistakes.</p>
-      <div class="stack"><span>Next.js</span><span>GPT-4</span><span>PostgreSQL</span></div>
-      <div class="hover-info">
-        <div class="row"><b>PROBLEM</b><span>One-size-fits-all lectures leave 60% of students behind.</span></div>
-        <div class="row"><b>SOLUTION</b><span>Agent that analyzes error patterns and rebuilds the syllabus per student, nightly.</span></div>
-        <div class="row"><b>TEAM</b><span>4 members · AI × Web</span></div>
-        <div class="row"><b>IMPACT</b><span>2,300 students onboarded across 3 colleges.</span></div>
-        <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶ Live Demo</button></div>
-      </div></div></div>
-    <div class="project reveal d2"><div class="visual"><span class="glyph">🔐</span></div><div class="body">
-      <h3>SentinelX</h3><p>Campus-wide security auditing toolkit — finds misconfigured systems before attackers do.</p>
-      <div class="stack"><span>Python</span><span>Nmap</span><span>Burp</span></div>
-      <div class="hover-info">
-        <div class="row"><b>PROBLEM</b><span>College infra runs legacy services nobody has audited since 2019.</span></div>
-        <div class="row"><b>SOLUTION</b><span>Automated recon + vulnerability scoring dashboard with one-click remediation guides.</span></div>
-        <div class="row"><b>TEAM</b><span>3 members · Cyber Security</span></div>
-        <div class="row"><b>AWARD</b><span>🥈 Finalist — National Cyber CTF 2024</span></div>
-        <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶ Live Demo</button></div>
-      </div></div></div>
-    <div class="project reveal"><div class="visual"><span class="glyph">🤖</span></div><div class="body">
-      <h3>BoltBot</h3><p>Line-following, maze-solving, sumo-fighting robot — 3 national podiums and counting.</p>
-      <div class="stack"><span>Embedded C</span><span>ROS</span><span>Fusion 360</span></div>
-      <div class="hover-info">
-        <div class="row"><b>PROBLEM</b><span>Robotics teams needed a modular base platform to iterate fast.</span></div>
-        <div class="row"><b>SOLUTION</b><span>Swappable sensor arrays + path-planning stack tuned for competition rules.</span></div>
-        <div class="row"><b>TEAM</b><span>6 members · Robotics × Embedded</span></div>
-        <div class="row"><b>AWARD</b><span>🥇🥈🥉 3× National Podium</span></div>
-        <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶ Live Demo</button></div>
-      </div></div></div>
-    <div class="project reveal d1"><div class="visual"><span class="glyph">📡</span></div><div class="body">
-      <h3>GridPulse</h3><p>Smart energy monitor for hostels — cut electricity waste 22% in a 6-month pilot.</p>
-      <div class="stack"><span>ESP32</span><span>MQTT</span><span>Grafana</span></div>
-      <div class="hover-info">
-        <div class="row"><b>PROBLEM</b><span>Hostels waste megawatts to idle appliances and phantom loads.</span></div>
-        <div class="row"><b>SOLUTION</b><span>Per-room sensing with anomaly alerts and a public "green floor" leaderboard.</span></div>
-        <div class="row"><b>TEAM</b><span>4 members · IoT × Cloud</span></div>
-        <div class="row"><b>IMPACT</b><span>22% energy reduction · adopted by campus admin.</span></div>
-        <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶ Live Demo</button></div>
-      </div></div></div>
-    <div class="project reveal d2"><div class="visual"><span class="glyph">🌐</span></div><div class="body">
-      <h3>OpenTrack</h3><p>Open-source event management platform now used by 15+ college communities.</p>
-      <div class="stack"><span>TypeScript</span><span>Supabase</span><span>Vercel</span></div>
-      <div class="hover-info">
-        <div class="row"><b>PROBLEM</b><span>Every club rebuilds the same event-registration tooling from scratch.</span></div>
-        <div class="row"><b>SOLUTION</b><span>One open-source platform: registrations, QR check-ins, certificates, analytics.</span></div>
-        <div class="row"><b>TEAM</b><span>5 members · Open Source × Web</span></div>
-        <div class="row"><b>IMPACT</b><span>⭐ 1.2k GitHub stars · 15 communities self-hosting.</span></div>
-        <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶ Live Demo</button></div>
-      </div></div></div>
-  </div>
-</section>
-
-<!-- TIMELINE -->
-<section id="events">
-  <div class="sec-head reveal"><div class="sec-kicker">THE JOURNEY</div><h2>From a empty room<br>to a movement.</h2></div>
-  <div class="timeline">
-    <div class="t-item"><div class="year">2021</div><h3>ORIGIN was born.</h3><p>Seven students. One borrowed classroom. A whiteboard, a dream, and zero budget.</p></div>
-    <div class="t-item"><div class="year">2022</div><h3>First Hackathon Win</h3><p>Our web team took 1st place at the state-level hackathon — the first trophy of many.</p></div>
-    <div class="t-item"><div class="year">2023</div><h3>National Recognition</h3><p>Two national podiums, a research paper accepted, and 100+ members strong.</p></div>
-    <div class="t-item"><div class="year">2024</div><h3>AI Division Started</h3><p>A dedicated AI lab, GPU access secured, and the club's first industry collaboration.</p></div>
-    <div class="t-item"><div class="year">2025</div><h3>Building Startups</h3><p>Three member-founded startups in incubation. ORIGIN is no longer just a club — it's a launchpad.</p></div>
-    <div class="t-item"><div class="year">2026</div><h3>You are here.</h3><p>The next chapter needs builders. Scroll down and claim your seat.</p></div>
-  </div>
-</section>
-
-<!-- TEAM -->
-<section id="team">
-  <div class="sec-head reveal"><div class="sec-kicker">DIGITAL IDENTITIES</div><h2>Every member has a profile.<br>Like GitHub. But alive.</h2></div>
-  <div class="team-grid" id="teamGrid"></div>
-</section>
-
-<!-- LABS -->
-<section id="labs">
-  <div class="sec-head reveal"><div class="sec-kicker">ORIGIN LAB — COMMAND CENTER</div><h2>Mission Control.</h2><p>Live operations across all divisions. Try the terminal — type <b class="mono" style="color:var(--cyan)">help</b>.</p></div>
-  <div class="shell reveal">
-    <div class="shell-bar"><i></i><i></i><i></i><span class="title">origin@mission-control: ~/labs</span></div>
-    <div class="shell-body">
-      <div>
-        <div id="term"><div class="t-line ok">ORIGIN OS Terminal — connected to mission control</div><div class="t-line dim" style="color:#3d4a63">Type 'help' to list commands.</div></div>
-        <div id="termInputRow"><span class="ps">➜ ~</span><input id="termInput" autocomplete="off" spellcheck="false" placeholder="type a command… (try: whoami)"></div>
+  <!-- BOOT -->
+  <div id="boot">
+    <div class="boot-inner">
+      <div id="bootLog"></div>
+      <div class="boot-bar">
+        <div id="bootFill"></div>
       </div>
-      <div>
-        <div class="missions">
-          <div class="mission-card"><div class="m-top"><span class="m-name">🛰 AeroSense v2</span><span class="m-status st-live">● LIVE</span></div><div class="m-desc">Field trial #12 scheduled · drone fleet charging · model retraining tonight.</div></div>
-          <div class="mission-card"><div class="m-top"><span class="m-name">🧠 NeuraTutor</span><span class="m-status st-live">● LIVE</span></div><div class="m-desc">1,142 active learners · agent pipeline healthy · v0.9 releasing Friday.</div></div>
-          <div class="mission-card"><div class="m-top"><span class="m-name">⚡ HackXtreme 2026</span><span class="m-status st-soon">◌ SOON</span></div><div class="m-desc">Flagship hackathon · registrations open · 48h · ₹1.5L prize pool.</div></div>
-          <div class="mission-card"><div class="m-top"><span class="m-name">🧪 Robotics Lab</span><span class="m-status st-live">● LIVE</span></div><div class="m-desc">BoltBot Mk-IV assembly at 40% · torque tests passing.</div></div>
+      <div id="bootPct">0%</div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#hero" class="logo"><span class="dot"></span>ORIGIN<span class="mono"
+        style="font-size:10px;color:var(--muted);letter-spacing:.2em">&nbsp;OS v3.1</span></a>
+    <div class="nav-links">
+      <a href="#domains">Domains</a><a href="#projects">Projects</a><a href="#events">Timeline</a>
+      <a href="#team">Members</a><a href="#labs">Labs</a><a href="#leaderboard">Leaderboard</a><a
+        href="#gallery">Gallery</a>
+    </div>
+    <button class="btn primary small magnetic" onclick="openApply()">Join ORIGIN</button>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <section id="hero" style="max-width:none">
+      <div class="os-tag reveal" id="osTag">ORIGIN&nbsp;OS&nbsp;//&nbsp;DEPARTMENTAL&nbsp;TECHNICAL&nbsp;CLUB</div>
+      <h1 id="heroTitle" class="glitch" data-text="BUILD THE FUTURE">
+        <span class="line">Don't Join a Club.</span>
+        <span class="line grad">Join the People Building Tomorrow.</span>
+      </h1>
+      <div id="typeLine"><span id="typeText"></span><span class="caret"></span></div>
+      <div class="hero-ctas" id="heroCtas">
+        <button class="btn primary magnetic" onclick="openApply()">Join ORIGIN →</button>
+        <a class="btn magnetic" href="#projects">Explore Projects</a>
+        <button class="btn magnetic" onclick="openTerminalSection()">⌁ Launch Terminal</button>
+      </div>
+      <div class="scroll-hint"><span>SCROLL</span>
+        <div class="wheel"></div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section id="statsWrap" style="padding-top:20px">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">LIVE STATISTICS</div>
+        <h2>The numbers don't sleep.<br>Neither do we.</h2>
+      </div>
+      <div id="stats">
+        <div class="stat reveal">
+          <div class="num" data-target="0">0</div>
+          <div class="lbl">Projects Built</div>
         </div>
-        <div class="livefeed"><div class="feed-title">LIVE FEED</div><div id="feedLines"></div></div>
+        <div class="stat reveal d1">
+          <div class="num" data-target="3">0</div>
+          <div class="lbl">Hackathons</div>
+        </div>
+        <div class="stat reveal d2">
+          <div class="num" data-target="16">0</div>
+          <div class="lbl">Members</div>
+        </div>
+        <div class="stat reveal d3">
+          <div class="num" data-target="8">0</div>
+          <div class="lbl">Events</div>
+        </div>
+        <div class="stat reveal d4">
+          <div class="num" data-target="52">0</div>
+          <div class="lbl">Hours Coded</div>
+        </div>
+        <div class="stat reveal d4">
+          <div class="num">∞</div>
+          <div class="lbl">Coffee Consumed</div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <!-- DOMAINS -->
+    <section id="domains">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">OUR DOMAINS</div>
+        <h2>Pick a weapon.<br>Master it. Build with it.</h2>
+        <p>Eight divisions. One obsession — shipping real things that solve real problems.</p>
+      </div>
+      <div class="domains">
+        <div class="domain reveal">
+          <div class="ico">◈</div>
+          <h3>Artificial Intelligence</h3>
+          <p class="desc">LLMs, computer vision, and agents that actually do work.</p>
+          <div class="tags"><span class="tag">PyTorch</span><span class="tag">LangChain</span><span
+              class="tag">CV</span></div>
+        </div>
+        <div class="domain reveal d1">
+          <div class="ico">◇</div>
+          <h3>Web Engineering</h3>
+          <p class="desc">Interfaces so smooth they feel illegal.</p>
+          <div class="tags"><span class="tag">Next.js</span><span class="tag">Three.js</span><span
+              class="tag">GSAP</span></div>
+        </div>
+        <div class="domain reveal d2">
+          <div class="ico">▣</div>
+          <h3>App Development</h3>
+          <p class="desc">From idea to App Store in one semester.</p>
+          <div class="tags"><span class="tag">Flutter</span><span class="tag">Kotlin</span><span
+              class="tag">Swift</span></div>
+        </div>
+        <div class="domain reveal d3">
+          <div class="ico">⛨</div>
+          <h3>Cyber Security</h3>
+          <p class="desc">Breaking things legally. Fixing them properly.</p>
+          <div class="tags"><span class="tag">CTF</span><span class="tag">Pentesting</span><span
+              class="tag">OSINT</span></div>
+        </div>
+        <div class="domain reveal">
+          <div class="ico">☁</div>
+          <h3>Cloud & DevOps</h3>
+          <p class="desc">Infrastructure that survives demo day.</p>
+          <div class="tags"><span class="tag">AWS</span><span class="tag">Docker</span><span class="tag">CI/CD</span>
+          </div>
+        </div>
+        <div class="domain reveal d1">
+          <div class="ico">⌁</div>
+          <h3>IoT & Embedded</h3>
+          <p class="desc">Software that touches the physical world.</p>
+          <div class="tags"><span class="tag">Arduino</span><span class="tag">Raspberry Pi</span><span
+              class="tag">RTOS</span></div>
+        </div>
+        <div class="domain reveal d2">
+          <div class="ico">⚙</div>
+          <h3>Robotics</h3>
+          <p class="desc">Machines that move, sense, and win nationals.</p>
+          <div class="tags"><span class="tag">ROS</span><span class="tag">CAD</span><span class="tag">Control</span>
+          </div>
+        </div>
+        <div class="domain reveal d3">
+          <div class="ico"></div>
+          <h3>Open Source</h3>
+          <p class="desc">Code the whole world can read. Reputation you can keep.</p>
+          <div class="tags"><span class="tag">Git</span><span class="tag">PRs</span><span class="tag">Community</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">SELECTED PROJECTS</div>
+        <h2>Ideas don't stay ideas here.<br>We build them.</h2>
+        <p>Hover a project. It rises and reveals everything — the problem, the stack, the team, the proof.</p>
+      </div>
+      <div class="projects">
+        <div class="project reveal">
+          <div class="visual"><span class="glyph">🛰</span></div>
+          <div class="body">
+            <h3>AeroSense</h3>
+            <p>Drone-based crop disease detection using edge AI — scanned 40,000+ acres with a student budget.</p>
+            <div class="stack"><span>PyTorch</span><span>Jetson Nano</span><span>React</span></div>
+            <div class="hover-info">
+              <div class="row"><b>PROBLEM</b><span>Farmers detect crop disease 2–3 weeks too late, losing 30%
+                  yield.</span></div>
+              <div class="row"><b>SOLUTION</b><span>Autonomous drone flights + on-device vision model classifying leaf
+                  stress in real time.</span></div>
+              <div class="row"><b>TEAM</b><span>5 members · AI × Robotics × Web</span></div>
+              <div class="row"><b>AWARD</b><span>🏆 Winner — National AgriTech Hackathon 2025</span></div>
+              <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶
+                  Live Demo</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="project reveal d1">
+          <div class="visual"><span class="glyph">🧠</span></div>
+          <div class="body">
+            <h3>NeuraTutor</h3>
+            <p>An AI teaching assistant that generates personalized learning paths from a student's own mistakes.</p>
+            <div class="stack"><span>Next.js</span><span>GPT-4</span><span>PostgreSQL</span></div>
+            <div class="hover-info">
+              <div class="row"><b>PROBLEM</b><span>One-size-fits-all lectures leave 60% of students behind.</span></div>
+              <div class="row"><b>SOLUTION</b><span>Agent that analyzes error patterns and rebuilds the syllabus per
+                  student, nightly.</span></div>
+              <div class="row"><b>TEAM</b><span>4 members · AI × Web</span></div>
+              <div class="row"><b>IMPACT</b><span>2,300 students onboarded across 3 colleges.</span></div>
+              <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶
+                  Live Demo</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="project reveal d2">
+          <div class="visual"><span class="glyph">🔐</span></div>
+          <div class="body">
+            <h3>SentinelX</h3>
+            <p>Campus-wide security auditing toolkit — finds misconfigured systems before attackers do.</p>
+            <div class="stack"><span>Python</span><span>Nmap</span><span>Burp</span></div>
+            <div class="hover-info">
+              <div class="row"><b>PROBLEM</b><span>College infra runs legacy services nobody has audited since
+                  2019.</span></div>
+              <div class="row"><b>SOLUTION</b><span>Automated recon + vulnerability scoring dashboard with one-click
+                  remediation guides.</span></div>
+              <div class="row"><b>TEAM</b><span>3 members · Cyber Security</span></div>
+              <div class="row"><b>AWARD</b><span>🥈 Finalist — National Cyber CTF 2024</span></div>
+              <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶
+                  Live Demo</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="project reveal">
+          <div class="visual"><span class="glyph">🤖</span></div>
+          <div class="body">
+            <h3>BoltBot</h3>
+            <p>Line-following, maze-solving, sumo-fighting robot — 3 national podiums and counting.</p>
+            <div class="stack"><span>Embedded C</span><span>ROS</span><span>Fusion 360</span></div>
+            <div class="hover-info">
+              <div class="row"><b>PROBLEM</b><span>Robotics teams needed a modular base platform to iterate fast.</span>
+              </div>
+              <div class="row"><b>SOLUTION</b><span>Swappable sensor arrays + path-planning stack tuned for competition
+                  rules.</span></div>
+              <div class="row"><b>TEAM</b><span>6 members · Robotics × Embedded</span></div>
+              <div class="row"><b>AWARD</b><span>🥇🥈🥉 3× National Podium</span></div>
+              <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶
+                  Live Demo</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="project reveal d1">
+          <div class="visual"><span class="glyph">📡</span></div>
+          <div class="body">
+            <h3>GridPulse</h3>
+            <p>Smart energy monitor for hostels — cut electricity waste 22% in a 6-month pilot.</p>
+            <div class="stack"><span>ESP32</span><span>MQTT</span><span>Grafana</span></div>
+            <div class="hover-info">
+              <div class="row"><b>PROBLEM</b><span>Hostels waste megawatts to idle appliances and phantom loads.</span>
+              </div>
+              <div class="row"><b>SOLUTION</b><span>Per-room sensing with anomaly alerts and a public "green floor"
+                  leaderboard.</span></div>
+              <div class="row"><b>TEAM</b><span>4 members · IoT × Cloud</span></div>
+              <div class="row"><b>IMPACT</b><span>22% energy reduction · adopted by campus admin.</span></div>
+              <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶
+                  Live Demo</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="project reveal d2">
+          <div class="visual"><span class="glyph">🌐</span></div>
+          <div class="body">
+            <h3>OpenTrack</h3>
+            <p>Open-source event management platform now used by 15+ college communities.</p>
+            <div class="stack"><span>TypeScript</span><span>Supabase</span><span>Vercel</span></div>
+            <div class="hover-info">
+              <div class="row"><b>PROBLEM</b><span>Every club rebuilds the same event-registration tooling from
+                  scratch.</span></div>
+              <div class="row"><b>SOLUTION</b><span>One open-source platform: registrations, QR check-ins, certificates,
+                  analytics.</span></div>
+              <div class="row"><b>TEAM</b><span>5 members · Open Source × Web</span></div>
+              <div class="row"><b>IMPACT</b><span>⭐ 1.2k GitHub stars · 15 communities self-hosting.</span></div>
+              <div class="proj-links"><button class="btn small">⌥ GitHub</button><button class="btn small primary">▶
+                  Live Demo</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section id="events">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">THE JOURNEY</div>
+        <h2>From a empty room<br>to a movement.</h2>
+      </div>
+      <div class="timeline">
+        <div class="t-item">
+          <div class="year">2021</div>
+          <h3>ORIGIN was born.</h3>
+          <p>Seven students. One borrowed classroom. A whiteboard, a dream, and zero budget.</p>
+        </div>
+        <div class="t-item">
+          <div class="year">2022</div>
+          <h3>First Hackathon Win</h3>
+          <p>Our web team took 1st place at the state-level hackathon — the first trophy of many.</p>
+        </div>
+        <div class="t-item">
+          <div class="year">2023</div>
+          <h3>National Recognition</h3>
+          <p>Two national podiums, a research paper accepted, and 100+ members strong.</p>
+        </div>
+        <div class="t-item">
+          <div class="year">2024</div>
+          <h3>AI Division Started</h3>
+          <p>A dedicated AI lab, GPU access secured, and the club's first industry collaboration.</p>
+        </div>
+        <div class="t-item">
+          <div class="year">2025</div>
+          <h3>Building Startups</h3>
+          <p>Three member-founded startups in incubation. ORIGIN is no longer just a club — it's a launchpad.</p>
+        </div>
+        <div class="t-item">
+          <div class="year">2026</div>
+          <h3>You are here.</h3>
+          <p>The next chapter needs builders. Scroll down and claim your seat.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">DIGITAL IDENTITIES</div>
+        <h2>Every member has a profile.<br>Like GitHub. But alive.</h2>
+      </div>
+      <div class="team-grid" id="teamGrid"></div>
+    </section>
+
+    <!-- LABS -->
+    <section id="labs">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">ORIGIN LAB — COMMAND CENTER</div>
+        <h2>Mission Control.</h2>
+        <p>Live operations across all divisions. Try the terminal — type <b class="mono"
+            style="color:var(--cyan)">help</b>.</p>
+      </div>
+      <div class="shell reveal">
+        <div class="shell-bar"><i></i><i></i><i></i><span class="title">origin@mission-control: ~/labs</span></div>
+        <div class="shell-body">
+          <div>
+            <div id="term">
+              <div class="t-line ok">ORIGIN OS Terminal — connected to mission control</div>
+              <div class="t-line dim" style="color:#3d4a63">Type 'help' to list commands.</div>
+            </div>
+            <div id="termInputRow"><span class="ps">➜ ~</span><input id="termInput" autocomplete="off"
+                spellcheck="false" placeholder="type a command… (try: whoami)"></div>
+          </div>
+          <div>
+            <div class="missions">
+              <div class="mission-card">
+                <div class="m-top"><span class="m-name">🛰 AeroSense v2</span><span class="m-status st-live">●
+                    LIVE</span></div>
+                <div class="m-desc">Field trial #12 scheduled · drone fleet charging · model retraining tonight.</div>
+              </div>
+              <div class="mission-card">
+                <div class="m-top"><span class="m-name">🧠 NeuraTutor</span><span class="m-status st-live">● LIVE</span>
+                </div>
+                <div class="m-desc">1,142 active learners · agent pipeline healthy · v0.9 releasing Friday.</div>
+              </div>
+              <div class="mission-card">
+                <div class="m-top"><span class="m-name">⚡ HackXtreme 2026</span><span class="m-status st-soon">◌
+                    SOON</span></div>
+                <div class="m-desc">Flagship hackathon · registrations open · 48h · ₹1.5L prize pool.</div>
+              </div>
+              <div class="mission-card">
+                <div class="m-top"><span class="m-name">🧪 Robotics Lab</span><span class="m-status st-live">●
+                    LIVE</span></div>
+                <div class="m-desc">BoltBot Mk-IV assembly at 40% · torque tests passing.</div>
+              </div>
+            </div>
+            <div class="livefeed">
+              <div class="feed-title">LIVE FEED</div>
+              <div id="feedLines"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section id="leaderboard">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">LIVE LEADERBOARD</div>
+        <h2>XP doesn't lie.</h2>
+        <p>Earn points for coding, designing, organizing, mentoring, and shipping. Top contributors get first pick of
+          missions, hardware, and hackathon slots.</p>
+      </div>
+      <div class="board reveal" id="board"></div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery">
+      <div class="sec-head reveal">
+        <div class="sec-kicker">MEMORY TIMELINE</div>
+        <h2>Not a gallery.<br>Proof we lived it.</h2>
+      </div>
+      <div class="filters reveal">
+        <button class="chip active" data-f="all">ALL</button><button class="chip" data-f="hack">HACKATHONS</button>
+        <button class="chip" data-f="work">WORKSHOPS</button><button class="chip" data-f="trip">TRIPS</button>
+        <button class="chip" data-f="win">CELEBRATIONS</button><button class="chip" data-f="comp">COMPETITIONS</button>
+      </div>
+      <div class="gallery" id="galleryGrid"></div>
+    </section>
+
+    <!-- JOIN -->
+    <section id="join">
+      <div class="join-wrap reveal">
+        <div>
+          <div class="sec-kicker">RECRUITMENT // BATCH 2026</div>
+          <h2 style="font-size:clamp(28px,4vw,44px)">Some students attend college.<br><span class="grad">Others build
+              the future.</span></h2>
+          <div class="join-steps">
+            <div class="j-step">
+              <div class="n">01</div>
+              <p><b style="color:#fff">Apply</b> — 5 minutes. Tell us what you've built or what you're dying to build.
+              </p>
+            </div>
+            <div class="j-step">
+              <div class="n">02</div>
+              <p><b style="color:#fff">Build Challenge</b> — a small take-home task. Not an exam. A conversation
+                starter.</p>
+            </div>
+            <div class="j-step">
+              <div class="n">03</div>
+              <p><b style="color:#fff">Hangout</b> — meet the crew, see the lab, eat the pizza.</p>
+            </div>
+            <div class="j-step">
+              <div class="n">04</div>
+              <p><b style="color:#fff">Deploy</b> — welcome to ORIGIN OS. Your digital identity is minted.</p>
+            </div>
+          </div>
+        </div>
+        <form class="app" id="applyForm">
+          <input required placeholder="Full name">
+          <input required type="email" placeholder="College email">
+          <select required>
+            <option value="">Domain you're drawn to…</option>
+            <option>AI / ML</option>
+            <option>Web</option>
+            <option>App</option>
+            <option>Cyber Security</option>
+            <option>Cloud & DevOps</option>
+            <option>IoT / Embedded</option>
+            <option>Robotics</option>
+            <option>Open Source</option>
+          </select>
+          <textarea rows="3" placeholder="One thing you've built, broken, or dreamed of building…"></textarea>
+          <button class="btn primary" type="submit" style="justify-content:center">Initiate Application →</button>
+          <div class="mono" style="font-size:10.5px;color:var(--muted);text-align:center">psst — typing <b
+              style="color:var(--cyan)">sudo recruit me</b> anywhere also works</div>
+        </form>
+      </div>
+    </section>
+
+    <section style="max-width:1000px">
+      <p class="big-quote reveal">"Some students attend college.<br><span class="grad">Others build the
+          future.</span>"<span>— ORIGIN</span></p>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-grid">
+      <div>
+        <a href="#hero" class="logo"><span class="dot"></span>ORIGIN</a>
+        <p class="tagline">The operating system for innovators. Built by students, for the students who refuse to wait.
+        </p>
+      </div>
+      <div>
+        <h4>Navigate</h4><a href="#domains">Domains</a><a href="#projects">Projects</a><a href="#events">Timeline</a><a
+          href="#team">Members</a><a href="#leaderboard">Leaderboard</a>
+      </div>
+      <div>
+        <h4>Community</h4><a href="#">Discord</a><a href="#">Instagram</a><a href="#">LinkedIn</a><a
+          href="#">GitHub</a><a href="#">YouTube</a>
+      </div>
+      <div>
+        <h4>Transmission</h4>
+        <p style="color:var(--muted);font-size:12.5px;margin-bottom:10px">One signal a month. Only what matters.</p>
+        <div class="newsletter"><input id="nlInput" placeholder="you@college.edu"><button class="btn primary small"
+            id="nlBtn">→</button></div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 ORIGIN · BUILT WITH 14,892 HOURS & ∞ COFFEE</span>
+      <span>UPTIME: <b id="uptime" style="color:var(--success)">00:00:00</b> · v3.1.0</span>
+      <span style="color:#334155">hint: ↑↑↓↓←→←→BA</span>
+    </div>
+  </footer>
+
+  <!-- ORI -->
+  <button id="oriFab" title="Ask ORI">◈</button>
+  <div id="oriPanel">
+    <div class="ori-head">
+      <div class="orb"></div>
+      <div><b>ORI</b><small>● ONLINE — ORIGIN ASSISTANT</small></div>
+      <button id="oriVoice"
+        style="margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 9px;cursor:none;font-size:13px"
+        title="Voice input">🎙</button>
+      <button id="oriClose" style="background:none;border:none;color:var(--muted);cursor:none;font-size:18px">✕</button>
+    </div>
+    <div id="oriMsgs"></div>
+    <div class="ori-chips" id="oriChips"></div>
+    <div class="ori-input"><input id="oriInput" placeholder="Ask ORI anything…" autocomplete="off"><button
+        id="oriSend">➤</button></div>
+  </div>
+
+  <!-- APPLY MODAL -->
+  <div class="modal-bg" id="applyModal">
+    <div class="modal">
+      <button class="close-x" onclick="closeModal('applyModal')">✕</button>
+      <h2>Application <span class="grad">Initiated</span></h2>
+      <p class="sub">sudo origin.recruit --force</p>
+      <div id="applyBody">
+        <form class="app" id="applyFormModal">
+          <input required placeholder="Full name"><input required type="email" placeholder="College email">
+          <select required>
+            <option value="">Domain you're drawn to…</option>
+            <option>AI / ML</option>
+            <option>Web</option>
+            <option>App</option>
+            <option>Cyber Security</option>
+            <option>Cloud & DevOps</option>
+            <option>IoT / Embedded</option>
+            <option>Robotics</option>
+            <option>Open Source</option>
+          </select>
+          <textarea rows="3" placeholder="One thing you've built, broken, or dreamed of building…"></textarea>
+          <button class="btn primary" style="justify-content:center" type="submit">Submit Application →</button>
+        </form>
       </div>
     </div>
   </div>
-</section>
 
-<!-- LEADERBOARD -->
-<section id="leaderboard">
-  <div class="sec-head reveal"><div class="sec-kicker">LIVE LEADERBOARD</div><h2>XP doesn't lie.</h2><p>Earn points for coding, designing, organizing, mentoring, and shipping. Top contributors get first pick of missions, hardware, and hackathon slots.</p></div>
-  <div class="board reveal" id="board"></div>
-</section>
-
-<!-- GALLERY -->
-<section id="gallery">
-  <div class="sec-head reveal"><div class="sec-kicker">MEMORY TIMELINE</div><h2>Not a gallery.<br>Proof we lived it.</h2></div>
-  <div class="filters reveal">
-    <button class="chip active" data-f="all">ALL</button><button class="chip" data-f="hack">HACKATHONS</button>
-    <button class="chip" data-f="work">WORKSHOPS</button><button class="chip" data-f="trip">TRIPS</button>
-    <button class="chip" data-f="win">CELEBRATIONS</button><button class="chip" data-f="comp">COMPETITIONS</button>
+  <!-- DEV MODE -->
+  <div id="devOverlay">
+    <button class="x" onclick="document.getElementById('devOverlay').style.display='none'">ESC / CLOSE</button>
+    <div class="dv-title">▚▞ DEVELOPER MODE UNLOCKED ▚▞</div>
+    <div id="devLog"></div>
   </div>
-  <div class="gallery" id="galleryGrid"></div>
-</section>
 
-<!-- JOIN -->
-<section id="join">
-  <div class="join-wrap reveal">
-    <div>
-      <div class="sec-kicker">RECRUITMENT // BATCH 2026</div>
-      <h2 style="font-size:clamp(28px,4vw,44px)">Some students attend college.<br><span class="grad">Others build the future.</span></h2>
-      <div class="join-steps">
-        <div class="j-step"><div class="n">01</div><p><b style="color:#fff">Apply</b> — 5 minutes. Tell us what you've built or what you're dying to build.</p></div>
-        <div class="j-step"><div class="n">02</div><p><b style="color:#fff">Build Challenge</b> — a small take-home task. Not an exam. A conversation starter.</p></div>
-        <div class="j-step"><div class="n">03</div><p><b style="color:#fff">Hangout</b> — meet the crew, see the lab, eat the pizza.</p></div>
-        <div class="j-step"><div class="n">04</div><p><b style="color:#fff">Deploy</b> — welcome to ORIGIN OS. Your digital identity is minted.</p></div>
-      </div>
-    </div>
-    <form class="app" id="applyForm">
-      <input required placeholder="Full name">
-      <input required type="email" placeholder="College email">
-      <select required><option value="">Domain you're drawn to…</option><option>AI / ML</option><option>Web</option><option>App</option><option>Cyber Security</option><option>Cloud & DevOps</option><option>IoT / Embedded</option><option>Robotics</option><option>Open Source</option></select>
-      <textarea rows="3" placeholder="One thing you've built, broken, or dreamed of building…"></textarea>
-      <button class="btn primary" type="submit" style="justify-content:center">Initiate Application →</button>
-      <div class="mono" style="font-size:10.5px;color:var(--muted);text-align:center">psst — typing <b style="color:var(--cyan)">sudo recruit me</b> anywhere also works</div>
-    </form>
-  </div>
-</section>
-
-<section style="max-width:1000px">
-  <p class="big-quote reveal">"Some students attend college.<br><span class="grad">Others build the future.</span>"<span>— ORIGIN</span></p>
-</section>
-</main>
-
-<!-- FOOTER -->
-<footer>
-  <div class="foot-grid">
-    <div>
-      <a href="#hero" class="logo"><span class="dot"></span>ORIGIN</a>
-      <p class="tagline">The operating system for innovators. Built by students, for the students who refuse to wait.</p>
-    </div>
-    <div><h4>Navigate</h4><a href="#domains">Domains</a><a href="#projects">Projects</a><a href="#events">Timeline</a><a href="#team">Members</a><a href="#leaderboard">Leaderboard</a></div>
-    <div><h4>Community</h4><a href="#">Discord</a><a href="#">Instagram</a><a href="#">LinkedIn</a><a href="#">GitHub</a><a href="#">YouTube</a></div>
-    <div><h4>Transmission</h4><p style="color:var(--muted);font-size:12.5px;margin-bottom:10px">One signal a month. Only what matters.</p>
-      <div class="newsletter"><input id="nlInput" placeholder="you@college.edu"><button class="btn primary small" id="nlBtn">→</button></div></div>
-  </div>
-  <div class="foot-bottom">
-    <span>© 2026 ORIGIN · BUILT WITH 14,892 HOURS & ∞ COFFEE</span>
-    <span>UPTIME: <b id="uptime" style="color:var(--success)">00:00:00</b> · v3.1.0</span>
-    <span style="color:#334155">hint: ↑↑↓↓←→←→BA</span>
-  </div>
-</footer>
-
-<!-- ORI -->
-<button id="oriFab" title="Ask ORI">◈</button>
-<div id="oriPanel">
-  <div class="ori-head"><div class="orb"></div><div><b>ORI</b><small>● ONLINE — ORIGIN ASSISTANT</small></div>
-    <button id="oriVoice" style="margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 9px;cursor:none;font-size:13px" title="Voice input">🎙</button>
-    <button id="oriClose" style="background:none;border:none;color:var(--muted);cursor:none;font-size:18px">✕</button></div>
-  <div id="oriMsgs"></div>
-  <div class="ori-chips" id="oriChips"></div>
-  <div class="ori-input"><input id="oriInput" placeholder="Ask ORI anything…" autocomplete="off"><button id="oriSend">➤</button></div>
-</div>
-
-<!-- APPLY MODAL -->
-<div class="modal-bg" id="applyModal"><div class="modal">
-  <button class="close-x" onclick="closeModal('applyModal')">✕</button>
-  <h2>Application <span class="grad">Initiated</span></h2>
-  <p class="sub">sudo origin.recruit --force</p>
-  <div id="applyBody">
-    <form class="app" id="applyFormModal">
-      <input required placeholder="Full name"><input required type="email" placeholder="College email">
-      <select required><option value="">Domain you're drawn to…</option><option>AI / ML</option><option>Web</option><option>App</option><option>Cyber Security</option><option>Cloud & DevOps</option><option>IoT / Embedded</option><option>Robotics</option><option>Open Source</option></select>
-      <textarea rows="3" placeholder="One thing you've built, broken, or dreamed of building…"></textarea>
-      <button class="btn primary" style="justify-content:center" type="submit">Submit Application →</button>
-    </form>
-  </div>
-</div></div>
-
-<!-- DEV MODE -->
-<div id="devOverlay">
-  <button class="x" onclick="document.getElementById('devOverlay').style.display='none'">ESC / CLOSE</button>
-  <div class="dv-title">▚▞ DEVELOPER MODE UNLOCKED ▚▞</div>
-  <div id="devLog"></div>
-</div>
-
-<div id="toasts"></div>
-<script>
-/* ============ BOOT SEQUENCE ============ */
-(function(){
-  const log=document.getElementById('bootLog'), fill=document.getElementById('bootFill'), pct=document.getElementById('bootPct');
-  const lines=[
-    ['dim','ORIGIN BIOS v3.1 — checksum OK'],
-    ['ok','Initializing ORIGIN OS...'],
-    ['','Loading Future Engineers... <b style="color:#fff">147 found</b>'],
-    ['','Loading Hackers... <b style="color:#fff">31 detected</b>'],
-    ['','Loading Designers... <b style="color:#fff">12 found</b>'],
-    ['','Loading Innovators... <b style="color:#fff">∞</b>'],
-    ['acc','Compiling dreams into executable code...'],
-    ['ok','Welcome.'],
-  ];
-  let i=0,p=0;
-  function typeLine(){
-    if(i>=lines.length){finish();return;}
-    const [cls,txt]=lines[i];
-    const div=document.createElement('div');
-    div.className='t-line '+(cls||'out');
-    div.innerHTML=(cls==='ok'?'[✓] ':cls==='dim'?'[#] ':'[&nbsp;] ')+txt;
-    log.appendChild(div);
-    const c=log.querySelector('.caret'); if(c)c.remove();
-    const caret=document.createElement('span');caret.className='caret';div.appendChild(caret);
-    i++; setTimeout(typeLine, 300+Math.random()*380);
-  }
-  const iv=setInterval(()=>{
-    p=Math.min(100,p+Math.random()*7+2);
-    fill.style.width=p+'%'; pct.textContent=Math.floor(p)+'%';
-    if(p>=100){clearInterval(iv);}
-  },120);
-  setTimeout(typeLine,500);
-  function finish(){
-    setTimeout(()=>{
-      document.getElementById('boot').classList.add('done');
-      document.getElementById('nav').classList.add('show');
-      setTimeout(()=>{
-        document.getElementById('osTag').style.opacity=1;
-        const t=document.getElementById('heroTitle');
-        t.classList.add('glitching'); setTimeout(()=>t.classList.remove('glitching'),400);
-        t.style.transition='opacity 1.2s cubic-bezier(.16,1,.3,1), transform 1.2s cubic-bezier(.16,1,.3,1)';
-        t.style.opacity=1; t.style.transform='none';
-        setTimeout(()=>{document.getElementById('typeLine').style.opacity=1;heroType();},700);
-        setTimeout(()=>{const c=document.getElementById('heroCtas');c.style.transition='opacity 1s';c.style.opacity=1;},1400);
-      },400);
-    },600);
-  }
-  const phrases=["We don't learn technology. We create it.","Hackathons. Robots. Startups. 2AM breakthroughs.","147 builders. 46 projects. 0 excuses.","Your move, future engineer."];
-  let pi=0;
-  function heroType(){
-    const el=document.getElementById('typeText'), ph=phrases[pi%phrases.length]; let j=0;
-    (function tick(){
-      if(j<=ph.length){el.textContent=ph.slice(0,j);j++;setTimeout(tick,34);}
-      else setTimeout(()=>{(function del(){if(j>=0){el.textContent=ph.slice(0,j);j--;setTimeout(del,12);}else{pi++;setTimeout(heroType,300);}})();},2400);
+  <div id="toasts"></div>
+  <script>
+    /* ============ BOOT SEQUENCE ============ */
+    (function () {
+      const log = document.getElementById('bootLog'), fill = document.getElementById('bootFill'), pct = document.getElementById('bootPct');
+      const lines = [
+        ['dim', 'ORIGIN BIOS v3.1 — checksum OK'],
+        ['ok', 'Initializing ORIGIN OS...'],
+        ['', 'Loading Future Engineers... <b style="color:#fff">147 found</b>'],
+        ['', 'Loading Hackers... <b style="color:#fff">31 detected</b>'],
+        ['', 'Loading Designers... <b style="color:#fff">12 found</b>'],
+        ['', 'Loading Innovators... <b style="color:#fff">∞</b>'],
+        ['acc', 'Compiling dreams into executable code...'],
+        ['ok', 'Welcome.'],
+      ];
+      let i = 0, p = 0;
+      function typeLine() {
+        if (i >= lines.length) { finish(); return; }
+        const [cls, txt] = lines[i];
+        const div = document.createElement('div');
+        div.className = 't-line ' + (cls || 'out');
+        div.innerHTML = (cls === 'ok' ? '[✓] ' : cls === 'dim' ? '[#] ' : '[&nbsp;] ') + txt;
+        log.appendChild(div);
+        const c = log.querySelector('.caret'); if (c) c.remove();
+        const caret = document.createElement('span'); caret.className = 'caret'; div.appendChild(caret);
+        i++; setTimeout(typeLine, 300 + Math.random() * 380);
+      }
+      const iv = setInterval(() => {
+        p = Math.min(100, p + Math.random() * 7 + 2);
+        fill.style.width = p + '%'; pct.textContent = Math.floor(p) + '%';
+        if (p >= 100) { clearInterval(iv); }
+      }, 120);
+      setTimeout(typeLine, 500);
+      function finish() {
+        setTimeout(() => {
+          document.getElementById('boot').classList.add('done');
+          document.getElementById('nav').classList.add('show');
+          setTimeout(() => {
+            document.getElementById('osTag').style.opacity = 1;
+            const t = document.getElementById('heroTitle');
+            t.classList.add('glitching'); setTimeout(() => t.classList.remove('glitching'), 400);
+            t.style.transition = 'opacity 1.2s cubic-bezier(.16,1,.3,1), transform 1.2s cubic-bezier(.16,1,.3,1)';
+            t.style.opacity = 1; t.style.transform = 'none';
+            setTimeout(() => { document.getElementById('typeLine').style.opacity = 1; heroType(); }, 700);
+            setTimeout(() => { const c = document.getElementById('heroCtas'); c.style.transition = 'opacity 1s'; c.style.opacity = 1; }, 1400);
+          }, 400);
+        }, 600);
+      }
+      const phrases = ["We don't learn technology. We create it.", "Hackathons. Robots. Startups. 2AM breakthroughs.", "147 builders. 46 projects. 0 excuses.", "Your move, future engineer."];
+      let pi = 0;
+      function heroType() {
+        const el = document.getElementById('typeText'), ph = phrases[pi % phrases.length]; let j = 0;
+        (function tick() {
+          if (j <= ph.length) { el.textContent = ph.slice(0, j); j++; setTimeout(tick, 34); }
+          else setTimeout(() => { (function del() { if (j >= 0) { el.textContent = ph.slice(0, j); j--; setTimeout(del, 12); } else { pi++; setTimeout(heroType, 300); } })(); }, 2400);
+        })();
+      }
     })();
-  }
-})();
 
-/* ============ NEURAL PARTICLE BACKGROUND ============ */
-(function(){
-  const cv=document.getElementById('bg'),cx=cv.getContext('2d');
-  let W,H,pts=[],mouse={x:-9999,y:-9999};
-  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;
-    const n=Math.min(130,Math.floor(W*H/14000));pts=[];
-    for(let i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.8+.6,hue:Math.random()<.5?'108,99,255':'0,229,255'});
-  }
-  resize();addEventListener('resize',resize);
-  addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
-  (function loop(){
-    cx.clearRect(0,0,W,H);
-    for(const p of pts){
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
-      const dx=p.x-mouse.x,dy=p.y-mouse.y,d=Math.hypot(dx,dy);
-      if(d<160){p.x+=dx/d*1.4;p.y+=dy/d*1.4;}
-      cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fillStyle='rgba('+p.hue+',.7)';cx.fill();
+    /* ============ NEURAL PARTICLE BACKGROUND ============ */
+    (function () {
+      const cv = document.getElementById('bg'), cx = cv.getContext('2d');
+      let W, H, pts = [], mouse = { x: -9999, y: -9999 };
+      function resize() {
+        W = cv.width = innerWidth; H = cv.height = innerHeight;
+        const n = Math.min(130, Math.floor(W * H / 14000)); pts = [];
+        for (let i = 0; i < n; i++)pts.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4, r: Math.random() * 1.8 + .6, hue: Math.random() < .5 ? '108,99,255' : '0,229,255' });
+      }
+      resize(); addEventListener('resize', resize);
+      addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+      (function loop() {
+        cx.clearRect(0, 0, W, H);
+        for (const p of pts) {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+          const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+          if (d < 160) { p.x += dx / d * 1.4; p.y += dy / d * 1.4; }
+          cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fillStyle = 'rgba(' + p.hue + ',.7)'; cx.fill();
+        }
+        for (let i = 0; i < pts.length; i++)for (let j = i + 1; j < pts.length; j++) {
+          const a = pts[i], b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (d < 130) {
+            cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y);
+            cx.strokeStyle = 'rgba(108,99,255,' + (0.14 * (1 - d / 130)) + ')'; cx.lineWidth = .6; cx.stroke();
+          }
+        }
+        requestAnimationFrame(loop);
+      })();
+    })();
+
+    /* ============ CURSOR + MAGNETIC ============ */
+    (function () {
+      const c = document.getElementById('cursor'), r = document.getElementById('cursorRing');
+      let mx = 0, my = 0, rx = 0, ry = 0;
+      addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; c.style.left = mx + 'px'; c.style.top = my + 'px'; });
+      (function follow() { rx += (mx - rx) * .14; ry += (my - ry) * .14; r.style.left = rx + 'px'; r.style.top = ry + 'px'; requestAnimationFrame(follow); })();
+      document.addEventListener('mouseover', e => { if (e.target.closest('a,button,.chip,.project,.domain,input,select,textarea')) c.classList.add('hovering'); });
+      document.addEventListener('mouseout', e => { if (e.target.closest('a,button,.chip,.project,.domain,input,select,textarea')) c.classList.remove('hovering'); });
+      document.addEventListener('mousemove', e => {
+        const m = e.target.closest('.magnetic'); if (!m) return;
+        const b = m.getBoundingClientRect();
+        m.style.transform = 'translate(' + ((e.clientX - b.left - b.width / 2) * .25) + 'px,' + ((e.clientY - b.top - b.height / 2) * .25) + 'px)';
+        m.style.transition = 'transform .1s';
+      });
+      document.addEventListener('mouseout', e => { const m = e.target.closest('.magnetic'); if (m) { m.style.transition = 'transform .5s cubic-bezier(.16,1,.3,1)'; m.style.transform = ''; } });
+    })();
+
+    /* ============ SCROLL REVEALS + COUNTERS + XP BARS ============ */
+    (function () {
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('in');
+        e.target.querySelectorAll('.num[data-target]').forEach(n => {
+          if (n.dataset.done) return; n.dataset.done = 1;
+          const T = +n.dataset.target, t0 = performance.now();
+          (function tick(t) {
+            const k = Math.min(1, (t - t0) / 1800), ease = 1 - Math.pow(1 - k, 3);
+            n.textContent = Math.floor(T * ease).toLocaleString();
+            if (k < 1) requestAnimationFrame(tick);
+          })(t0);
+        });
+        e.target.querySelectorAll('.lb-fill').forEach(b => b.style.width = b.dataset.w + '%');
+        io.unobserve(e.target);
+      }), { threshold: .18 });
+      document.querySelectorAll('.reveal,.t-item').forEach(el => io.observe(el));
+    })();
+
+    /* ============ TEAM PROFILES ============ */
+    (function () {
+      const M = [
+        { n: 'Aarav Mehta', r: 'PRESIDENT // AI DIVISION', s: ['PyTorch', 'LLMs', 'Strategy'], m: 'Current mission: shipping NeuraTutor v1.0 to 10 colleges.', p: 12, w: 4 },
+        { n: 'Zara Khan', r: 'VICE PRESIDENT // ROBOTICS', s: ['ROS', 'Control', 'CAD'], m: 'Current mission: BoltBot Mk-IV torque calibration before nationals.', p: 11, w: 3 },
+        { n: 'Dev Patel', r: 'TECH LEAD // WEB', s: ['Next.js', 'Three.js', 'GSAP'], m: 'Current mission: this website. yes, this one. it never ends.', p: 9, w: 2 },
+        { n: 'Isha Rao', r: 'HEAD // CYBER SECURITY', s: ['Pentesting', 'CTF', 'Networks'], m: 'Current mission: defending the club infra and attacking scoreboards.', p: 10, w: 5 },
+        { n: 'Kabir Singh', r: 'LEAD // OPEN SOURCE', s: ['TypeScript', 'Git', 'Community'], m: 'Current mission: OpenTrack v2 — 2k stars or bust.', p: 8, w: 2 },
+        { n: 'Meera Nair', r: 'DESIGN HEAD', s: ['Figma', 'Motion', 'Brand'], m: 'Current mission: making engineers care about kerning.', p: 7, w: 1 },
+      ];
+      const g = document.getElementById('teamGrid');
+      g.innerHTML = M.map((m, i) => {
+        let cells = ''; for (let k = 0; k < 42; k++) { const l = Math.random() < (m.p / 14) ? .15 : Math.random() < (m.p / 7) ? .4 : 0; cells += '<i class="' + (l ? 'l' + l : '') + '"></i>'; }
+        const init = m.n.split(' ').map(x => x[0]).join('');
+        return '<div class="member reveal d' + (i % 3) + '"><div class="avatar">' + init + '</div><div style="flex:1"><h3>' + m.n + '</h3><div class="role">' + m.r + '</div><div class="mission">' + m.m + '</div><div class="skills">' + m.s.map(x => '<span>' + x + '</span>').join('') + '</div><div class="contrib">' + cells + '</div><div class="stats"><span><b>' + m.p + '</b>PROJECTS</span><span><b>' + m.w + '</b>HACKATHON WINS</span><span><b>' + (m.p * 137 + m.w * 421) + '</b>XP</span></div></div></div>';
+      }).join('');
+      document.querySelectorAll('#teamGrid .reveal').forEach(el => new IntersectionObserver((es, o) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); o.unobserve(e.target); } }), { threshold: .15 }).observe(el));
+    })();
+
+    /* ============ LEADERBOARD ============ */
+    (function () {
+      const L = [['Zara Khan', 'Robotics', 4820], ['Dev Patel', 'Web', 4510], ['Aarav Mehta', 'AI', 4330], ['Isha Rao', 'Cyber', 3900], ['Kabir Singh', 'Open Source', 3410], ['Meera Nair', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]];
+      document.getElementById('board').innerHTML = L.map((x, i) =>
+        '<div class="row-lb"><span class="rank">' + String(i + 1).padStart(2, '0') + '</span><span class="lb-name"><span class="mini">' + x[0].split(' ').map(w => w[0]).join('') + '</span>' + x[0] + '</span><span class="lb-cat">' + x[1] + '</span><span class="lb-xp">' + x[2].toLocaleString() + ' XP</span><div class="lb-track"><div class="lb-fill" data-w="' + Math.round(x[2] / L[0][2] * 100) + '"></div></div></div>').join('');
+    })();
+
+    /* ============ GALLERY ============ */
+    (function () {
+      const G = [['🏆', 'National AgriTech Hackathon — Winners', 'hack · mar 2025'], ['🌙', '48 hours, zero sleep, one demo', 'hack · feb 2026'], ['🤖', 'Robotics workshop: 60 bots, 60 grins', 'work · jan 2026'], ['🚐', 'Industrial visit — the datacenter trip', 'trip · nov 2025'], ['🎉', 'Celebrating 147 members strong', 'win · aug 2025'], ['⚔', 'Inter-college CTF finals', 'comp · oct 2025'], ['🧑‍💻', 'Build night #23 — whiteboards full', 'work · sep 2025'], ['🏅', 'BoltBot podium at nationals', 'comp · dec 2025'], ['🍕', 'Demo day + pizza day (same day)', 'win · apr 2026'], ['🔧', 'PCB soldering marathon', 'work · jun 2025'], ['⛰', 'Team retreat to the hills', 'trip · dec 2024'], ['🥈', 'SentinelX takes silver at Cyber CTF', 'comp · jul 2024']];
+      const hues = [265, 190, 320, 150, 40, 210];
+      document.getElementById('galleryGrid').innerHTML = G.map((g, i) => '<div class="g-item" data-cat="' + g[2].split(' ')[0] + '"><div class="g-bg" style="background:radial-gradient(circle at 30% 30%,hsla(' + hues[i % 6] + ',80%,60%,.25),transparent 60%),linear-gradient(150deg,#0d1430,#070b1c)">' + g[0] + '</div><div class="g-cap">' + g[1] + '<small>' + g[2] + '</small></div></div>').join('');
+      document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); ch.classList.add('active');
+        const f = ch.dataset.f;
+        document.querySelectorAll('.g-item').forEach(it => it.classList.toggle('hidden-g', f !== 'all' && it.dataset.cat !== f));
+      }));
+    })();
+
+    /* ============ TERMINAL ============ */
+    const termOut = (html) => { const t = document.getElementById('term'); const d = document.createElement('div'); d.className = 't-line'; d.innerHTML = html; t.appendChild(d); t.scrollTop = t.scrollHeight; };
+    (function () {
+      const CMDS = {
+        help: '<span class="ok">AVAILABLE COMMANDS:</span>\n&nbsp;&nbsp;projects&nbsp;&nbsp;events&nbsp;&nbsp;team&nbsp;&nbsp;join&nbsp;&nbsp;stats\n&nbsp;&nbsp;whoami&nbsp;&nbsp;ori&nbsp;&nbsp;rm -rf boredom&nbsp;&nbsp;clear',
+        projects: '46 projects on record. Highlights: AeroSense 🛰 · NeuraTutor 🧠 · SentinelX 🔐 · BoltBot 🤖\n→ scroll to PROJECTS for full dossiers.',
+        events: 'Next: <b>HackXtreme 2026</b> — 48h · ₹1.5L prize pool · registrations open.\nWorkshops every Friday, 6PM, Lab-2.',
+        team: '147 members · 6 core leads · profiles live in the MEMBERS section.\nFun fact: every member has a digital identity. Even the designer.',
+        join: 'So you want in. Good. Two options:\n&nbsp;&nbsp;1. Click "Join ORIGIN" up top\n&nbsp;&nbsp;2. Type <span class="cmd">sudo recruit me</span> anywhere on this page',
+        stats: 'Projects: 46 · Hackathons: 31 · Members: 147 · Awards: 72\nHours coded: 14,892 · Coffee: <span class="ok">∞</span>',
+        whoami: 'visitor — but not for long, if the recruitment form has anything to say about it.',
+        ori: 'Opening ORI assistant… (bottom-right corner)',
+        'sudo rm -rf boredom': '<span class="ok">boredom successfully removed.</span> 2.4GB of curiosity installed instead.',
+        clear: '__CLEAR__'
+      };
+      const inp = document.getElementById('termInput');
+      inp.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const v = inp.value.trim().toLowerCase(); inp.value = '';
+        if (!v) return;
+        termOut('<span class="cmd">➜ ~ ' + v.replace(/</g, '&lt;') + '</span>');
+        if (v === 'clear') { document.getElementById('term').innerHTML = ''; return; }
+        if (v === 'hack') { termOut('<span style="color:#ff5f57">ACCESS DENIED.</span> nice try though. +10 curiosity points.'); return; }
+        const r = CMDS[v] || ('<span style="color:#ffd166">command not found:</span> ' + v.replace(/</g, '&lt;') + " — type 'help'");
+        if (v === 'ori') { document.getElementById('oriPanel').classList.add('open'); oriSay('You summoned me from the terminal. Respect. What do you need?'); }
+        termOut(r.replace(/\n/g, '<br>'));
+      });
+    })();
+    function openTerminalSection() { document.getElementById('labs').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => document.getElementById('termInput').focus(), 900); }
+
+    /* ============ LIVE FEED + UPTIME ============ */
+    (function () {
+      const feed = [['⎇', 'AeroSense model retrain queued', '2m ago'], ['✦', 'Isha.Rao +50 XP — CTF qualifier', '6m ago'], ['⎇', 'OpenTrack PR #142 merged', '11m ago'], ['✦', 'Meera.Nair +30 XP — brand kit v3', '19m ago'], ['⎇', 'BoltBot Mk-IV part printed', '24m ago'], ['✦', 'Ananya.Gupta +20 XP — sensor docs', '31m ago'], ['⎇', 'HackXtreme: 12 new registrations', '38m ago']];
+      let fi = 0; const fl = document.getElementById('feedLines');
+      setInterval(() => { const f = feed[fi++ % feed.length]; const d = document.createElement('div'); d.innerHTML = '<span style="color:var(--cyan)">' + f[0] + '</span> ' + f[1] + ' <span style="color:#334155">· ' + f[2] + '</span>'; fl.prepend(d); while (fl.children.length > 4) fl.lastChild.remove(); }, 2600);
+      const t0 = Date.now();
+      setInterval(() => { const s = Math.floor((Date.now() - t0) / 1000); const h = String(Math.floor(s / 3600)).padStart(2, '0'), m = String(Math.floor(s / 60) % 60).padStart(2, '0'), ss = String(s % 60).padStart(2, '0'); const u = document.getElementById('uptime'); if (u) u.textContent = h + ':' + m + ':' + ss; }, 1000);
+    })();
+
+    /* ============ ORI ASSISTANT ============ */
+    const oriMsgs = document.getElementById('oriMsgs');
+    function oriSay(txt) {
+      const d = document.createElement('div'); d.className = 'msg bot'; d.innerHTML = txt; oriMsgs.appendChild(d); oriMsgs.scrollTop = oriMsgs.scrollHeight;
     }
-    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
-      const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-      if(d<130){cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);
-        cx.strokeStyle='rgba(108,99,255,'+(0.14*(1-d/130))+')';cx.lineWidth=.6;cx.stroke();}
+    function oriUser(txt) {
+      const d = document.createElement('div'); d.className = 'msg user'; d.textContent = txt; oriMsgs.appendChild(d); oriMsgs.scrollTop = oriMsgs.scrollHeight;
     }
-    requestAnimationFrame(loop);
-  })();
-})();
+    const ORI_BRAIN = [
+      [/(join|recruit|apply|membership)/i, 'Joining is easy: 4 steps — apply, build challenge, hangout, deploy. Hit the big "Join ORIGIN" button, or type <b>sudo recruit me</b> anywhere. Even here. Try it.'],
+      [/(hackathon|hackxtreme|competition)/i, '<b>HackXtreme 2026</b> is our flagship: 48 hours, ₹1.5L prize pool, team formation opens 2 weeks prior. We also run internal mini-hacks every month.'],
+      [/(event|workshop|when|where|schedule)/i, 'Workshops: every Friday 6PM, Lab-2. Next big event: <b>HackXtreme 2026</b>. Demo days end of each semester. Pizza is statistically guaranteed.'],
+      [/(project|portfolio|built)/i, '46 projects live — AeroSense (drone AI), NeuraTutor (learning agents), SentinelX (security), BoltBot (robotics). Scroll to PROJECTS, hover the cards.'],
+      [/(resource|learn|roadmap|study|road map)/i, 'Every member gets a learning roadmap + access to our GPU lab, course vault, and senior mentorship. Domains cover AI, Web, Cyber, Cloud, IoT, Robotics and Open Source.'],
+      [/(who|what|origin|about|club)/i, 'ORIGIN is the departmental technical club — but really it is an innovation hub, startup incubator and hacker family. Est. 2021. 147 members. Motto: ideas don\u2019t stay ideas here.'],
+      [/(hi|hello|hey|yo)/i, 'Hey, builder. I am ORI — ORIGIN\u2019s assistant. Ask me about joining, hackathons, events, or projects.'],
+      [/(xp|leaderboard|points|score)/i, 'Earn XP for coding, design, content, volunteering and mentoring. Top of the leaderboard gets first pick of hardware, missions and hackathon slots. Gamification is not a gimmick here.'],
+    ];
+    (function () {
+      const chips = ['How do I join?', 'Tell me about Hackathons', 'Upcoming Events', 'Projects', 'Resources'];
+      document.getElementById('oriChips').innerHTML = chips.map(c => '<button>' + c + '</button>').join('');
+      document.querySelectorAll('#oriChips button').forEach(b => b.addEventListener('click', () => { askOri(b.textContent); }));
+      const fab = document.getElementById('oriFab'), panel = document.getElementById('oriPanel');
+      let greeted = false;
+      fab.addEventListener('click', () => {
+        panel.classList.toggle('open');
+        if (!greeted) { greeted = true; setTimeout(() => oriSay('Hello. I am <b>ORI</b> — the ORIGIN assistant. I know everything about this club except where the good chairs are. Ask away.'), 400); }
+        document.getElementById('oriInput').focus();
+      });
+      document.getElementById('oriClose').addEventListener('click', () => panel.classList.remove('open'));
+      document.getElementById('oriSend').addEventListener('click', () => { const i = document.getElementById('oriInput'); if (i.value.trim()) { askOri(i.value.trim()); i.value = ''; } });
+      document.getElementById('oriInput').addEventListener('keydown', e => { if (e.key === 'Enter') { const i = e.target; if (i.value.trim()) { askOri(i.value.trim()); i.value = ''; } } });
+      function askOri(q) {
+        oriUser(q); setTimeout(() => {
+          const hit = ORI_BRAIN.find(([re]) => re.test(q));
+          if (/sudo recruit me/i.test(q)) { oriSay('Executing…'); setTimeout(() => openApply(), 600); return; }
+          oriSay(hit ? hit[1] : 'I am a club assistant, not a general oracle — but I do know everything about <b>ORIGIN</b>. Try: joining, hackathons, events, projects, XP, or resources.');
+        }, 500 + Math.random() * 400);
+      }
+      // voice
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const vbtn = document.getElementById('oriVoice');
+      if (!SR) { vbtn.style.display = 'none'; }
+      else { vbtn.addEventListener('click', () => { const r = new SR(); r.lang = 'en-US'; oriSay('🎙 Listening…'); r.onresult = e => { const t = e.results[0][0].transcript; askOri(t); }; r.start(); }); }
+    })();
 
-/* ============ CURSOR + MAGNETIC ============ */
-(function(){
-  const c=document.getElementById('cursor'),r=document.getElementById('cursorRing');
-  let mx=0,my=0,rx=0,ry=0;
-  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.left=mx+'px';c.style.top=my+'px';});
-  (function follow(){rx+=(mx-rx)*.14;ry+=(my-ry)*.14;r.style.left=rx+'px';r.style.top=ry+'px';requestAnimationFrame(follow);})();
-  document.addEventListener('mouseover',e=>{if(e.target.closest('a,button,.chip,.project,.domain,input,select,textarea'))c.classList.add('hovering');});
-  document.addEventListener('mouseout',e=>{if(e.target.closest('a,button,.chip,.project,.domain,input,select,textarea'))c.classList.remove('hovering');});
-  document.addEventListener('mousemove',e=>{
-    const m=e.target.closest('.magnetic'); if(!m)return;
-    const b=m.getBoundingClientRect();
-    m.style.transform='translate('+((e.clientX-b.left-b.width/2)*.25)+'px,'+((e.clientY-b.top-b.height/2)*.25)+'px)';
-    m.style.transition='transform .1s';
-  });
-  document.addEventListener('mouseout',e=>{const m=e.target.closest('.magnetic');if(m){m.style.transition='transform .5s cubic-bezier(.16,1,.3,1)';m.style.transform='';}});
-})();
+    /* ============ MODALS + FORMS ============ */
+    function openApply() { document.getElementById('applyModal').classList.add('open'); unlock('applicant', '🏅', 'APPLICANT', 'Badge unlocked: you took the first step.'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+    function handleApply(e) {
+      e.preventDefault();
+      e.target.innerHTML = '<div style="text-align:center;padding:30px 0"><div style="font-size:44px">🚀</div><h3 style="margin:16px 0 8px">Application received.</h3><p class="mono" style="color:var(--muted);font-size:12px">TRANSMISSION ID: OG-' + Math.floor(Math.random() * 90000 + 10000) + '<br>Response ETA: 48 hours. Start building something meanwhile.</p></div>';
+      unlock('builder', '🔥', 'BUILDER', 'Badge unlocked: application deployed.');
+    }
+    document.getElementById('applyForm').addEventListener('submit', handleApply);
+    document.getElementById('applyFormModal').addEventListener('submit', handleApply);
+    document.getElementById('nlBtn').addEventListener('click', () => { const i = document.getElementById('nlInput'); if (i.value.includes('@')) { i.value = ''; i.placeholder = '✓ Subscribed. Signal incoming.'; } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal('applyModal'); document.getElementById('oriPanel').classList.remove('open'); } });
 
-/* ============ SCROLL REVEALS + COUNTERS + XP BARS ============ */
-(function(){
-  const io=new IntersectionObserver(es=>es.forEach(e=>{
-    if(!e.isIntersecting)return;
-    e.target.classList.add('in');
-    e.target.querySelectorAll('.num[data-target]').forEach(n=>{
-      if(n.dataset.done)return;n.dataset.done=1;
-      const T=+n.dataset.target,t0=performance.now();
-      (function tick(t){const k=Math.min(1,(t-t0)/1800),ease=1-Math.pow(1-k,3);
-        n.textContent=Math.floor(T*ease).toLocaleString();
-        if(k<1)requestAnimationFrame(tick);})(t0);
+    /* ============ PROJECT TILT ============ */
+    document.querySelectorAll('.project').forEach(p => {
+      p.addEventListener('mousemove', e => {
+        const b = p.getBoundingClientRect(), x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height;
+        p.style.transform = 'rotateY(' + ((x - .5) * 10) + 'deg) rotateX(' + ((.5 - y) * 8) + 'deg) translateZ(12px)';
+        p.style.transition = 'transform .08s';
+        const v = p.querySelector('.visual'); v.style.setProperty('--mx', x * 100 + '%'); v.style.setProperty('--my', y * 100 + '%');
+      });
+      p.addEventListener('mouseleave', () => { p.style.transition = 'transform .6s cubic-bezier(.16,1,.3,1)'; p.style.transform = ''; });
     });
-    e.target.querySelectorAll('.lb-fill').forEach(b=>b.style.width=b.dataset.w+'%');
-    io.unobserve(e.target);
-  }),{threshold:.18});
-  document.querySelectorAll('.reveal,.t-item').forEach(el=>io.observe(el));
-})();
 
-/* ============ TEAM PROFILES ============ */
-(function(){
-  const M=[
-    {n:'Aarav Mehta',r:'PRESIDENT // AI DIVISION',s:['PyTorch','LLMs','Strategy'],m:'Current mission: shipping NeuraTutor v1.0 to 10 colleges.',p:12,w:4},
-    {n:'Zara Khan',r:'VICE PRESIDENT // ROBOTICS',s:['ROS','Control','CAD'],m:'Current mission: BoltBot Mk-IV torque calibration before nationals.',p:11,w:3},
-    {n:'Dev Patel',r:'TECH LEAD // WEB',s:['Next.js','Three.js','GSAP'],m:'Current mission: this website. yes, this one. it never ends.',p:9,w:2},
-    {n:'Isha Rao',r:'HEAD // CYBER SECURITY',s:['Pentesting','CTF','Networks'],m:'Current mission: defending the club infra and attacking scoreboards.',p:10,w:5},
-    {n:'Kabir Singh',r:'LEAD // OPEN SOURCE',s:['TypeScript','Git','Community'],m:'Current mission: OpenTrack v2 — 2k stars or bust.',p:8,w:2},
-    {n:'Meera Nair',r:'DESIGN HEAD',s:['Figma','Motion','Brand'],m:'Current mission: making engineers care about kerning.',p:7,w:1},
-  ];
-  const g=document.getElementById('teamGrid');
-  g.innerHTML=M.map((m,i)=>{
-    let cells='';for(let k=0;k<42;k++){const l=Math.random()<(m.p/14)?.15:Math.random()<(m.p/7)?.4:0;cells+='<i class="'+(l?'l'+l:'')+'"></i>';}
-    const init=m.n.split(' ').map(x=>x[0]).join('');
-    return '<div class="member reveal d'+(i%3)+'"><div class="avatar">'+init+'</div><div style="flex:1"><h3>'+m.n+'</h3><div class="role">'+m.r+'</div><div class="mission">'+m.m+'</div><div class="skills">'+m.s.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="contrib">'+cells+'</div><div class="stats"><span><b>'+m.p+'</b>PROJECTS</span><span><b>'+m.w+'</b>HACKATHON WINS</span><span><b>'+(m.p*137+m.w*421)+'</b>XP</span></div></div></div>';
-  }).join('');
-  document.querySelectorAll('#teamGrid .reveal').forEach(el=>new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');o.unobserve(e.target);}}),{threshold:.15}).observe(el));
-})();
-
-/* ============ LEADERBOARD ============ */
-(function(){
-  const L=[['Zara Khan','Robotics',4820],['Dev Patel','Web',4510],['Aarav Mehta','AI',4330],['Isha Rao','Cyber',3900],['Kabir Singh','Open Source',3410],['Meera Nair','Design',3120],['Rohan Iyer','Cloud',2870],['Ananya Gupta','IoT',2540]];
-  document.getElementById('board').innerHTML=L.map((x,i)=>
-    '<div class="row-lb"><span class="rank">'+String(i+1).padStart(2,'0')+'</span><span class="lb-name"><span class="mini">'+x[0].split(' ').map(w=>w[0]).join('')+'</span>'+x[0]+'</span><span class="lb-cat">'+x[1]+'</span><span class="lb-xp">'+x[2].toLocaleString()+' XP</span><div class="lb-track"><div class="lb-fill" data-w="'+Math.round(x[2]/L[0][2]*100)+'"></div></div></div>').join('');
-})();
-
-/* ============ GALLERY ============ */
-(function(){
-  const G=[['🏆','National AgriTech Hackathon — Winners','hack · mar 2025'],['🌙','48 hours, zero sleep, one demo','hack · feb 2026'],['🤖','Robotics workshop: 60 bots, 60 grins','work · jan 2026'],['🚐','Industrial visit — the datacenter trip','trip · nov 2025'],['🎉','Celebrating 147 members strong','win · aug 2025'],['⚔','Inter-college CTF finals','comp · oct 2025'],['🧑‍💻','Build night #23 — whiteboards full','work · sep 2025'],['🏅','BoltBot podium at nationals','comp · dec 2025'],['🍕','Demo day + pizza day (same day)','win · apr 2026'],['🔧','PCB soldering marathon','work · jun 2025'],['⛰','Team retreat to the hills','trip · dec 2024'],['🥈','SentinelX takes silver at Cyber CTF','comp · jul 2024']];
-  const hues=[265,190,320,150,40,210];
-  document.getElementById('galleryGrid').innerHTML=G.map((g,i)=>'<div class="g-item" data-cat="'+g[2].split(' ')[0]+'"><div class="g-bg" style="background:radial-gradient(circle at 30% 30%,hsla('+hues[i%6]+',80%,60%,.25),transparent 60%),linear-gradient(150deg,#0d1430,#070b1c)">'+g[0]+'</div><div class="g-cap">'+g[1]+'<small>'+g[2]+'</small></div></div>').join('');
-  document.querySelectorAll('.chip').forEach(ch=>ch.addEventListener('click',()=>{
-    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));ch.classList.add('active');
-    const f=ch.dataset.f;
-    document.querySelectorAll('.g-item').forEach(it=>it.classList.toggle('hidden-g',f!=='all'&&it.dataset.cat!==f));
-  }));
-})();
-
-/* ============ TERMINAL ============ */
-const termOut=(html)=>{const t=document.getElementById('term');const d=document.createElement('div');d.className='t-line';d.innerHTML=html;t.appendChild(d);t.scrollTop=t.scrollHeight;};
-(function(){
-  const CMDS={
-    help:'<span class="ok">AVAILABLE COMMANDS:</span>\n&nbsp;&nbsp;projects&nbsp;&nbsp;events&nbsp;&nbsp;team&nbsp;&nbsp;join&nbsp;&nbsp;stats\n&nbsp;&nbsp;whoami&nbsp;&nbsp;ori&nbsp;&nbsp;rm -rf boredom&nbsp;&nbsp;clear',
-    projects:'46 projects on record. Highlights: AeroSense 🛰 · NeuraTutor 🧠 · SentinelX 🔐 · BoltBot 🤖\n→ scroll to PROJECTS for full dossiers.',
-    events:'Next: <b>HackXtreme 2026</b> — 48h · ₹1.5L prize pool · registrations open.\nWorkshops every Friday, 6PM, Lab-2.',
-    team:'147 members · 6 core leads · profiles live in the MEMBERS section.\nFun fact: every member has a digital identity. Even the designer.',
-    join:'So you want in. Good. Two options:\n&nbsp;&nbsp;1. Click "Join ORIGIN" up top\n&nbsp;&nbsp;2. Type <span class="cmd">sudo recruit me</span> anywhere on this page',
-    stats:'Projects: 46 · Hackathons: 31 · Members: 147 · Awards: 72\nHours coded: 14,892 · Coffee: <span class="ok">∞</span>',
-    whoami:'visitor — but not for long, if the recruitment form has anything to say about it.',
-    ori:'Opening ORI assistant… (bottom-right corner)',
-    'sudo rm -rf boredom':'<span class="ok">boredom successfully removed.</span> 2.4GB of curiosity installed instead.',
-    clear:'__CLEAR__'
-  };
-  const inp=document.getElementById('termInput');
-  inp.addEventListener('keydown',e=>{
-    if(e.key!=='Enter')return;
-    const v=inp.value.trim().toLowerCase();inp.value='';
-    if(!v)return;
-    termOut('<span class="cmd">➜ ~ '+v.replace(/</g,'&lt;')+'</span>');
-    if(v==='clear'){document.getElementById('term').innerHTML='';return;}
-    if(v==='hack'){termOut('<span style="color:#ff5f57">ACCESS DENIED.</span> nice try though. +10 curiosity points.');return;}
-    const r=CMDS[v]||('<span style="color:#ffd166">command not found:</span> '+v.replace(/</g,'&lt;')+" — type 'help'");
-    if(v==='ori'){document.getElementById('oriPanel').classList.add('open');oriSay('You summoned me from the terminal. Respect. What do you need?');}
-    termOut(r.replace(/\n/g,'<br>'));
-  });
-})();
-function openTerminalSection(){document.getElementById('labs').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('termInput').focus(),900);}
-
-/* ============ LIVE FEED + UPTIME ============ */
-(function(){
-  const feed=[['⎇','AeroSense model retrain queued','2m ago'],['✦','Isha.Rao +50 XP — CTF qualifier','6m ago'],['⎇','OpenTrack PR #142 merged','11m ago'],['✦','Meera.Nair +30 XP — brand kit v3','19m ago'],['⎇','BoltBot Mk-IV part printed','24m ago'],['✦','Ananya.Gupta +20 XP — sensor docs','31m ago'],['⎇','HackXtreme: 12 new registrations','38m ago']];
-  let fi=0;const fl=document.getElementById('feedLines');
-  setInterval(()=>{const f=feed[fi++%feed.length];const d=document.createElement('div');d.innerHTML='<span style="color:var(--cyan)">'+f[0]+'</span> '+f[1]+' <span style="color:#334155">· '+f[2]+'</span>';fl.prepend(d);while(fl.children.length>4)fl.lastChild.remove();},2600);
-  const t0=Date.now();
-  setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);const h=String(Math.floor(s/3600)).padStart(2,'0'),m=String(Math.floor(s/60)%60).padStart(2,'0'),ss=String(s%60).padStart(2,'0');const u=document.getElementById('uptime');if(u)u.textContent=h+':'+m+':'+ss;},1000);
-})();
-
-/* ============ ORI ASSISTANT ============ */
-const oriMsgs=document.getElementById('oriMsgs');
-function oriSay(txt){
-  const d=document.createElement('div');d.className='msg bot';d.innerHTML=txt;oriMsgs.appendChild(d);oriMsgs.scrollTop=oriMsgs.scrollHeight;
-}
-function oriUser(txt){
-  const d=document.createElement('div');d.className='msg user';d.textContent=txt;oriMsgs.appendChild(d);oriMsgs.scrollTop=oriMsgs.scrollHeight;
-}
-const ORI_BRAIN=[
-  [/(join|recruit|apply|membership)/i,'Joining is easy: 4 steps — apply, build challenge, hangout, deploy. Hit the big "Join ORIGIN" button, or type <b>sudo recruit me</b> anywhere. Even here. Try it.'],
-  [/(hackathon|hackxtreme|competition)/i,'<b>HackXtreme 2026</b> is our flagship: 48 hours, ₹1.5L prize pool, team formation opens 2 weeks prior. We also run internal mini-hacks every month.'],
-  [/(event|workshop|when|where|schedule)/i,'Workshops: every Friday 6PM, Lab-2. Next big event: <b>HackXtreme 2026</b>. Demo days end of each semester. Pizza is statistically guaranteed.'],
-  [/(project|portfolio|built)/i,'46 projects live — AeroSense (drone AI), NeuraTutor (learning agents), SentinelX (security), BoltBot (robotics). Scroll to PROJECTS, hover the cards.'],
-  [/(resource|learn|roadmap|study|road map)/i,'Every member gets a learning roadmap + access to our GPU lab, course vault, and senior mentorship. Domains cover AI, Web, Cyber, Cloud, IoT, Robotics and Open Source.'],
-  [/(who|what|origin|about|club)/i,'ORIGIN is the departmental technical club — but really it is an innovation hub, startup incubator and hacker family. Est. 2021. 147 members. Motto: ideas don\u2019t stay ideas here.'],
-  [/(hi|hello|hey|yo)/i,'Hey, builder. I am ORI — ORIGIN\u2019s assistant. Ask me about joining, hackathons, events, or projects.'],
-  [/(xp|leaderboard|points|score)/i,'Earn XP for coding, design, content, volunteering and mentoring. Top of the leaderboard gets first pick of hardware, missions and hackathon slots. Gamification is not a gimmick here.'],
-];
-(function(){
-  const chips=['How do I join?','Tell me about Hackathons','Upcoming Events','Projects','Resources'];
-  document.getElementById('oriChips').innerHTML=chips.map(c=>'<button>'+c+'</button>').join('');
-  document.querySelectorAll('#oriChips button').forEach(b=>b.addEventListener('click',()=>{askOri(b.textContent);}));
-  const fab=document.getElementById('oriFab'),panel=document.getElementById('oriPanel');
-  let greeted=false;
-  fab.addEventListener('click',()=>{panel.classList.toggle('open');
-    if(!greeted){greeted=true;setTimeout(()=>oriSay('Hello. I am <b>ORI</b> — the ORIGIN assistant. I know everything about this club except where the good chairs are. Ask away.'),400);}
-    document.getElementById('oriInput').focus();});
-  document.getElementById('oriClose').addEventListener('click',()=>panel.classList.remove('open'));
-  document.getElementById('oriSend').addEventListener('click',()=>{const i=document.getElementById('oriInput');if(i.value.trim()){askOri(i.value.trim());i.value='';}});
-  document.getElementById('oriInput').addEventListener('keydown',e=>{if(e.key==='Enter'){const i=e.target;if(i.value.trim()){askOri(i.value.trim());i.value='';}}});
-  function askOri(q){oriUser(q);setTimeout(()=>{
-    const hit=ORI_BRAIN.find(([re])=>re.test(q));
-    if(/sudo recruit me/i.test(q)){oriSay('Executing…');setTimeout(()=>openApply(),600);return;}
-    oriSay(hit?hit[1]:'I am a club assistant, not a general oracle — but I do know everything about <b>ORIGIN</b>. Try: joining, hackathons, events, projects, XP, or resources.');
-  },500+Math.random()*400);}
-  // voice
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  const vbtn=document.getElementById('oriVoice');
-  if(!SR){vbtn.style.display='none';}
-  else{vbtn.addEventListener('click',()=>{const r=new SR();r.lang='en-US';oriSay('🎙 Listening…');r.onresult=e=>{const t=e.results[0][0].transcript;askOri(t);};r.start();});}
-})();
-
-/* ============ MODALS + FORMS ============ */
-function openApply(){document.getElementById('applyModal').classList.add('open');unlock('applicant','🏅','APPLICANT','Badge unlocked: you took the first step.');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
-function handleApply(e){
-  e.preventDefault();
-  e.target.innerHTML='<div style="text-align:center;padding:30px 0"><div style="font-size:44px">🚀</div><h3 style="margin:16px 0 8px">Application received.</h3><p class="mono" style="color:var(--muted);font-size:12px">TRANSMISSION ID: OG-'+Math.floor(Math.random()*90000+10000)+'<br>Response ETA: 48 hours. Start building something meanwhile.</p></div>';
-  unlock('builder','🔥','BUILDER','Badge unlocked: application deployed.');
-}
-document.getElementById('applyForm').addEventListener('submit',handleApply);
-document.getElementById('applyFormModal').addEventListener('submit',handleApply);
-document.getElementById('nlBtn').addEventListener('click',()=>{const i=document.getElementById('nlInput');if(i.value.includes('@')){i.value='';i.placeholder='✓ Subscribed. Signal incoming.';}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal('applyModal');document.getElementById('oriPanel').classList.remove('open');}});
-
-/* ============ PROJECT TILT ============ */
-document.querySelectorAll('.project').forEach(p=>{
-  p.addEventListener('mousemove',e=>{
-    const b=p.getBoundingClientRect(),x=(e.clientX-b.left)/b.width,y=(e.clientY-b.top)/b.height;
-    p.style.transform='rotateY('+((x-.5)*10)+'deg) rotateX('+((.5-y)*8)+'deg) translateZ(12px)';
-    p.style.transition='transform .08s';
-    const v=p.querySelector('.visual');v.style.setProperty('--mx',x*100+'%');v.style.setProperty('--my',y*100+'%');
-  });
-  p.addEventListener('mouseleave',()=>{p.style.transition='transform .6s cubic-bezier(.16,1,.3,1)';p.style.transform='';});
-});
-
-/* ============ EASTER EGGS + BADGES ============ */
-const badges={};
-function unlock(id,ico,title,msg){
-  if(badges[id])return;badges[id]=1;
-  const t=document.createElement('div');t.className='toast';
-  t.innerHTML='<span class="t-ico">'+ico+'</span><span><b>BADGE UNLOCKED · '+title+'</b>'+msg+'</span>';
-  document.getElementById('toasts').appendChild(t);
-  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),600);},4200);
-}
-let keyBuf='',konami=[];
-const KONAMI=[38,38,40,40,37,39,37,39,66,65];
-document.addEventListener('keydown',e=>{
-  if(e.target.matches('input,textarea,select'))return;
-  konami.push(e.keyCode);if(konami.length>10)konami.shift();
-  if(konami.join(',')===KONAMI.join(',')){konami=[];devMode();return;}
-  if(e.key.length!==1)return;
-  keyBuf=(keyBuf+e.key.toLowerCase()).slice(-24);
-  if(keyBuf.endsWith('sudo recruit me')){keyBuf='';openApply();termOut('<span class="ok">[easter egg] sudo recruit me — application page opened.</span>');}
-  else if(keyBuf.endsWith('origin')){keyBuf='';document.body.classList.toggle('neon');
-    termOut('<span class="ok">[easter egg] NEON CORE '+(document.body.classList.contains('neon')?'ENGAGED':'DISENGAGED')+'.</span>');
-    unlock('hacker','⚡','HACKER','Badge unlocked: you found the keyboard secret.');}
-});
-function devMode(){
-  unlock('visionary','🛰','VISIONARY','Badge unlocked: Konami code. Of course you tried it.');
-  const ov=document.getElementById('devOverlay');ov.style.display='block';
-  const lines=['> boot --dev --unfiltered','<span class="warn">WARNING: user is overqualified for normal mode</span>','Coffee Level ......... <span class="warn">CRITICAL (refill required)</span>','Bug Count ............ <span style="color:#fff">0 shipped · 4,712 hidden</span>','Confidence ........... <span style="color:#fff">200%</span>','Sleep Debt ........... <span class="red">-47 hours</span>','Commit Messages ...... "fix", "final fix", "actual final fix v2"','> git blame origin-story.txt','&nbsp;&nbsp;Vasu — 2021 — "started with a whiteboard and unreasonable optimism"','> query: why is this club different?','&nbsp;&nbsp;ANSWER: members build. visitors join. legends stay.','','<span class="warn">DEVELOPER MODE will self-destruct on close. Everything else is real.</span>'];
-  const log=document.getElementById('devLog');log.innerHTML='';let i=0;
-  (function tick(){if(i<lines.length){const d=document.createElement('div');d.innerHTML=lines[i++];log.appendChild(d);setTimeout(tick,300);}else{const c=document.createElement('div');c.innerHTML='<span class="caret"></span>';log.appendChild(c);}})();
-  termOut('<span class="ok">[easter egg] DEVELOPER MODE UNLOCKED via Konami code.</span>');
-}
-/* explorer badge after deep scroll */
-let maxScroll=0;
-addEventListener('scroll',()=>{maxScroll=Math.max(maxScroll,scrollY/(document.body.scrollHeight-innerHeight));
-  if(maxScroll>.6)unlock('explorer','🧭','EXPLORER','Badge unlocked: you explored 60% of ORIGIN OS.');},{passive:true});
-setTimeout(()=>unlock('curious','👀','CURIOUS','Badge unlocked: you stayed more than 30 seconds. Good sign.'),30000);
-</script>
-<script src="/api-client.js"></script>
+    /* ============ EASTER EGGS + BADGES ============ */
+    const badges = {};
+    function unlock(id, ico, title, msg) {
+      if (badges[id]) return; badges[id] = 1;
+      const t = document.createElement('div'); t.className = 'toast';
+      t.innerHTML = '<span class="t-ico">' + ico + '</span><span><b>BADGE UNLOCKED · ' + title + '</b>' + msg + '</span>';
+      document.getElementById('toasts').appendChild(t);
+      setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 600); }, 4200);
+    }
+    let keyBuf = '', konami = [];
+    const KONAMI = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+    document.addEventListener('keydown', e => {
+      if (e.target.matches('input,textarea,select')) return;
+      konami.push(e.keyCode); if (konami.length > 10) konami.shift();
+      if (konami.join(',') === KONAMI.join(',')) { konami = []; devMode(); return; }
+      if (e.key.length !== 1) return;
+      keyBuf = (keyBuf + e.key.toLowerCase()).slice(-24);
+      if (keyBuf.endsWith('sudo recruit me')) { keyBuf = ''; openApply(); termOut('<span class="ok">[easter egg] sudo recruit me — application page opened.</span>'); }
+      else if (keyBuf.endsWith('origin')) {
+        keyBuf = ''; document.body.classList.toggle('neon');
+        termOut('<span class="ok">[easter egg] NEON CORE ' + (document.body.classList.contains('neon') ? 'ENGAGED' : 'DISENGAGED') + '.</span>');
+        unlock('hacker', '⚡', 'HACKER', 'Badge unlocked: you found the keyboard secret.');
+      }
+    });
+    function devMode() {
+      unlock('visionary', '🛰', 'VISIONARY', 'Badge unlocked: Konami code. Of course you tried it.');
+      const ov = document.getElementById('devOverlay'); ov.style.display = 'block';
+      const lines = ['> boot --dev --unfiltered', '<span class="warn">WARNING: user is overqualified for normal mode</span>', 'Coffee Level ......... <span class="warn">CRITICAL (refill required)</span>', 'Bug Count ............ <span style="color:#fff">0 shipped · 4,712 hidden</span>', 'Confidence ........... <span style="color:#fff">200%</span>', 'Sleep Debt ........... <span class="red">-47 hours</span>', 'Commit Messages ...... "fix", "final fix", "actual final fix v2"', '> git blame origin-story.txt', '&nbsp;&nbsp;Vasu — 2021 — "started with a whiteboard and unreasonable optimism"', '> query: why is this club different?', '&nbsp;&nbsp;ANSWER: members build. visitors join. legends stay.', '', '<span class="warn">DEVELOPER MODE will self-destruct on close. Everything else is real.</span>'];
+      const log = document.getElementById('devLog'); log.innerHTML = ''; let i = 0;
+      (function tick() { if (i < lines.length) { const d = document.createElement('div'); d.innerHTML = lines[i++]; log.appendChild(d); setTimeout(tick, 300); } else { const c = document.createElement('div'); c.innerHTML = '<span class="caret"></span>'; log.appendChild(c); } })();
+      termOut('<span class="ok">[easter egg] DEVELOPER MODE UNLOCKED via Konami code.</span>');
+    }
+    /* explorer badge after deep scroll */
+    let maxScroll = 0;
+    addEventListener('scroll', () => {
+      maxScroll = Math.max(maxScroll, scrollY / (document.body.scrollHeight - innerHeight));
+      if (maxScroll > .6) unlock('explorer', '🧭', 'EXPLORER', 'Badge unlocked: you explored 60% of ORIGIN OS.');
+    }, { passive: true });
+    setTimeout(() => unlock('curious', '👀', 'CURIOUS', 'Badge unlocked: you stayed more than 30 seconds. Good sign.'), 30000);
+  </script>
+  <script src="/api-client.js"></script>
 </body>
+
 </html>
