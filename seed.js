@@ -57,6 +57,7 @@ function seed() {
   db.prepare("UPDATE members SET name='Rahul',role='MEMBER' WHERE name='Karthik Patel'").run();
   db.prepare("UPDATE members SET name='Bhanu Prakash' WHERE name='Rahul Verma'").run();
   db.prepare("UPDATE members SET name='Hitesh',role='MEMBER' WHERE name='Divya Menon'").run();
+  db.prepare("DELETE FROM members WHERE name='Nisha Kapoor'").run();
   const additionalMembers = [
     ['Trideepa', 'MEMBER', 'AWS,Docker,CI/CD', 'Current mission: making every project deployment-ready.', 6, 2],
     ['Manashi', 'MEMBER', 'ESP32,MQTT,Sensors', 'Current mission: connecting campus devices to useful dashboards.', 5, 1],
@@ -67,7 +68,6 @@ function seed() {
     ['Rahul', 'MEMBER', 'Linux,CTF,Network Security', 'Current mission: practicing defensive security through lab challenges.', 5, 2],
     ['Hitesh', 'MEMBER', 'Flutter,Dart,Firebase', 'Current mission: prototyping helpful mobile experiences for students.', 3, 1],
     ['Bhanu Prakash', 'OPEN SOURCE CONTRIBUTOR', 'Git,JavaScript,Documentation', 'Current mission: helping more contributors find their first issue.', 4, 1],
-    ['Nisha Kapoor', 'DATA & AUTOMATION', 'Python,SQL,Data Visualization', 'Current mission: turning project data into actionable insights.', 3, 1],
   ];
   const insertMember = db.prepare('INSERT INTO members(name,role,skills,mission,projects,wins,sort) VALUES (?,?,?,?,?,?,?)');
   const existingMembers = new Set(db.prepare('SELECT name FROM members').all().map(({ name }) => name));
