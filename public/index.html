@@ -10,6 +10,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
+
   <style>
     :root {
       --bg: #050816;
@@ -124,29 +125,29 @@
 
       #cursor,
       #cursorRing {
-          <div class="year">2024</div>
+        display: none
       }
-          <p>A new chapter began for the CSE Department's technical community. ORIGIN set out to create opportunities for students to explore technology, collaborate, and learn beyond the classroom.</p>
+
       body {
         cursor: auto
-          <div class="year">2025</div>
-          <h3>Our First Hackathon.</h3>
-          <p>ORIGIN organized its first hackathon, bringing students together to turn ideas into practical solutions. It marked an important step in the club's journey toward hands-on technical learning and collaboration.</p>
-    /* ---------- BOOT ---------- */
-    #boot {
-          <div class="year">2025</div>
-          <h3>A Growing Community.</h3>
-          <p>ORIGIN began building its presence beyond campus activities, gaining college-level recognition and starting to establish its identity on social media. The focus was on connecting students with technical events, learning opportunities, and the wider community.</p>
-      z-index: 10000;
-      display: flex;
-          <div class="year">2026</div>
-      justify-content: center;
-          <p>ORIGIN is exploring the world of Artificial Intelligence, encouraging students to learn emerging technologies, experiment with ideas, and build practical skills.</p>
+      }
     }
 
-          <div class="year">2026</div>
+    /* ---------- BOOT ---------- */
+    #boot {
+      position: fixed;
+      inset: 0;
+      background: #03040c;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .9s, visibility .9s
+    }
+
+    #boot.done {
       opacity: 0;
-          <p>From identifying real-world problems to developing project ideas, ORIGIN encourages students to think beyond the classroom and explore the possibilities of innovation and entrepreneurship.</p>
+      visibility: hidden
     }
 
     .boot-inner {
