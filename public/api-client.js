@@ -44,7 +44,8 @@
       let cells = '';
       for (let k = 0; k < 42; k++) { const l = Math.random() < (m.projects / 14) ? .15 : Math.random() < (m.projects / 7) ? .4 : 0; cells += '<i class="' + (l ? 'l' + l : '') + '"></i>'; }
       const init = m.name.split(' ').map(x => x[0]).join('');
-      return '<div class="member reveal d' + (i % 3) + '"><div class="avatar">' + esc(init) + '</div><div style="flex:1"><h3>' + esc(m.name) + '</h3><div class="role">' + esc(m.role) +
+      const avatar = m.name === 'K. Aishwarya' ? '<img src="/team/aishwarya.jpg" alt="K. Aishwarya">' : esc(init);
+      return '<div class="member reveal d' + (i % 3) + '"><div class="avatar">' + avatar + '</div><div style="flex:1"><h3>' + esc(m.name) + '</h3><div class="role">' + esc(m.role) +
         '</div><div class="mission">' + esc(m.mission) + '</div><div class="skills">' + m.skills.map(x => '<span>' + esc(x) + '</span>').join('') +
         '</div><div class="contrib">' + cells + '</div><div class="stats"><span><b>' + m.projects + '</b>PROJECTS</span><span><b>' + m.wins +
         '</b>HACKATHON WINS</span><span><b>' + (m.projects * 137 + m.wins * 421) + '</b>XP</span></div></div></div>';

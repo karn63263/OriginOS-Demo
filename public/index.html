@@ -888,6 +888,7 @@
       width: 62px;
       height: 62px;
       border-radius: 16px;
+      overflow: hidden;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -897,6 +898,12 @@
       font-size: 21px;
       background: linear-gradient(135deg, var(--accent), var(--cyan));
       color: #050816
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
     }
 
     .member h3 {
@@ -2522,7 +2529,7 @@
     /* ============ TEAM PROFILES ============ */
     (function () {
       const M = [
-        { n: 'Aarav Mehta', r: 'PRESIDENT // AI DIVISION', s: ['PyTorch', 'LLMs', 'Strategy'], m: 'Current mission: shipping NeuraTutor v1.0 to 10 colleges.', p: 12, w: 4 },
+        { n: 'K. Aishwarya', r: 'PRESIDENT // AI DIVISION', s: ['PyTorch', 'LLMs', 'Strategy'], m: 'Current mission: shipping NeuraTutor v1.0 to 10 colleges.', p: 12, w: 4 },
         { n: 'Zara Khan', r: 'VICE PRESIDENT // ROBOTICS', s: ['ROS', 'Control', 'CAD'], m: 'Current mission: BoltBot Mk-IV torque calibration before nationals.', p: 11, w: 3 },
         { n: 'Dev Patel', r: 'TECH LEAD // WEB', s: ['Next.js', 'Three.js', 'GSAP'], m: 'Current mission: this website. yes, this one. it never ends.', p: 9, w: 2 },
         { n: 'Isha Rao', r: 'HEAD // CYBER SECURITY', s: ['Pentesting', 'CTF', 'Networks'], m: 'Current mission: defending the club infra and attacking scoreboards.', p: 10, w: 5 },
@@ -2543,14 +2550,15 @@
       g.innerHTML = M.map((m, i) => {
         let cells = ''; for (let k = 0; k < 42; k++) { const l = Math.random() < (m.p / 14) ? .15 : Math.random() < (m.p / 7) ? .4 : 0; cells += '<i class="' + (l ? 'l' + l : '') + '"></i>'; }
         const init = m.n.split(' ').map(x => x[0]).join('');
-        return '<div class="member reveal d' + (i % 3) + '"><div class="avatar">' + init + '</div><div style="flex:1"><h3>' + m.n + '</h3><div class="role">' + m.r + '</div><div class="mission">' + m.m + '</div><div class="skills">' + m.s.map(x => '<span>' + x + '</span>').join('') + '</div><div class="contrib">' + cells + '</div><div class="stats"><span><b>' + m.p + '</b>PROJECTS</span><span><b>' + m.w + '</b>HACKATHON WINS</span><span><b>' + (m.p * 137 + m.w * 421) + '</b>XP</span></div></div></div>';
+        const avatar = m.n === 'K. Aishwarya' ? '<img src="/team/aishwarya.jpg" alt="K. Aishwarya">' : init;
+        return '<div class="member reveal d' + (i % 3) + '"><div class="avatar">' + avatar + '</div><div style="flex:1"><h3>' + m.n + '</h3><div class="role">' + m.r + '</div><div class="mission">' + m.m + '</div><div class="skills">' + m.s.map(x => '<span>' + x + '</span>').join('') + '</div><div class="contrib">' + cells + '</div><div class="stats"><span><b>' + m.p + '</b>PROJECTS</span><span><b>' + m.w + '</b>HACKATHON WINS</span><span><b>' + (m.p * 137 + m.w * 421) + '</b>XP</span></div></div></div>';
       }).join('');
       document.querySelectorAll('#teamGrid .reveal').forEach(el => new IntersectionObserver((es, o) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); o.unobserve(e.target); } }), { threshold: .15 }).observe(el));
     })();
 
     /* ============ LEADERBOARD ============ */
     (function () {
-      const L = [['Zara Khan', 'Robotics', 4820], ['Dev Patel', 'Web', 4510], ['Aarav Mehta', 'AI', 4330], ['Isha Rao', 'Cyber', 3900], ['Kabir Singh', 'Open Source', 3410], ['Meera Nair', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]];
+      const L = [['Zara Khan', 'Robotics', 4820], ['Dev Patel', 'Web', 4510], ['K. Aishwarya', 'AI', 4330], ['Isha Rao', 'Cyber', 3900], ['Kabir Singh', 'Open Source', 3410], ['Meera Nair', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]];
       document.getElementById('board').innerHTML = L.map((x, i) =>
         '<div class="row-lb"><span class="rank">' + String(i + 1).padStart(2, '0') + '</span><span class="lb-name"><span class="mini">' + x[0].split(' ').map(w => w[0]).join('') + '</span>' + x[0] + '</span><span class="lb-cat">' + x[1] + '</span><span class="lb-xp">' + x[2].toLocaleString() + ' XP</span><div class="lb-track"><div class="lb-fill" data-w="' + Math.round(x[2] / L[0][2] * 100) + '"></div></div></div>').join('');
     })();

@@ -34,7 +34,7 @@ function seed() {
   if (empty('members')) {
     const m = db.prepare('INSERT INTO members(name,role,skills,mission,projects,wins,sort) VALUES (?,?,?,?,?,?,?)');
     [
-      ['Aarav Mehta', 'PRESIDENT // AI DIVISION', 'PyTorch,LLMs,Strategy', 'Current mission: shipping NeuraTutor v1.0 to 10 colleges.', 12, 4],
+      ['K. Aishwarya', 'PRESIDENT // AI DIVISION', 'PyTorch,LLMs,Strategy', 'Current mission: shipping NeuraTutor v1.0 to 10 colleges.', 12, 4],
       ['Zara Khan', 'VICE PRESIDENT // ROBOTICS', 'ROS,Control,CAD', 'Current mission: BoltBot Mk-IV torque calibration before nationals.', 11, 3],
       ['Dev Patel', 'TECH LEAD // WEB', 'Next.js,Three.js,GSAP', 'Current mission: this website. yes, this one. it never ends.', 9, 2],
       ['Isha Rao', 'HEAD // CYBER SECURITY', 'Pentesting,CTF,Networks', 'Current mission: defending the club infra and attacking scoreboards.', 10, 5],
@@ -42,6 +42,7 @@ function seed() {
       ['Meera Nair', 'DESIGN HEAD', 'Figma,Motion,Brand', 'Current mission: making engineers care about kerning.', 7, 1],
     ].forEach((r, i) => m.run(...r, i));
   }
+  db.prepare("UPDATE members SET name='K. Aishwarya' WHERE name='Aarav Mehta'").run();
   const additionalMembers = [
     ['Rohan Iyer', 'CLOUD ENGINEER', 'AWS,Docker,CI/CD', 'Current mission: making every project deployment-ready.', 6, 2],
     ['Ananya Gupta', 'IOT DEVELOPER', 'ESP32,MQTT,Sensors', 'Current mission: connecting campus devices to useful dashboards.', 5, 1],
@@ -64,10 +65,11 @@ function seed() {
   });
   if (empty('leaderboard')) {
     const l = db.prepare('INSERT INTO leaderboard(name,category,xp) VALUES (?,?,?)');
-    [['Zara Khan', 'Robotics', 4820], ['Dev Patel', 'Web', 4510], ['Aarav Mehta', 'AI', 4330], ['Isha Rao', 'Cyber', 3900],
+    [['Zara Khan', 'Robotics', 4820], ['Dev Patel', 'Web', 4510], ['K. Aishwarya', 'AI', 4330], ['Isha Rao', 'Cyber', 3900],
     ['Kabir Singh', 'Open Source', 3410], ['Meera Nair', 'Design', 3120], ['Rohan Iyer', 'Cloud', 2870], ['Ananya Gupta', 'IoT', 2540]]
       .forEach(r => l.run(...r));
   }
+  db.prepare("UPDATE leaderboard SET name='K. Aishwarya' WHERE name='Aarav Mehta'").run();
   if (empty('gallery')) {
     const g = db.prepare('INSERT INTO gallery(icon,caption,category,meta,sort) VALUES (?,?,?,?,?)');
     [['🏆', 'National AgriTech Hackathon — Winners', 'hack', 'hack · mar 2025'], ['🌙', '48 hours, zero sleep, one demo', 'hack', 'hack · feb 2026'],
