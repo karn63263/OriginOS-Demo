@@ -58,15 +58,35 @@ function seed() {
     ['⛰', 'Team retreat to the hills', 'trip', 'trip · dec 2024'], ['🥈', 'SentinelX takes silver at Cyber CTF', 'comp', 'comp · jul 2024']]
       .forEach((r, i) => g.run(...r, i));
   }
-  if (empty('timeline')) {
-    const t = db.prepare('INSERT INTO timeline(year,title,body,sort) VALUES (?,?,?,?)');
-    [['2021', 'ORIGIN was born.', 'Seven students. One borrowed classroom. A whiteboard, a dream, and zero budget.'],
+  const timelineEntries = [
+    ['2024', 'ORIGIN was born.', "A new chapter began for the CSE Department's technical community. ORIGIN set out to create opportunities for students to explore technology, collaborate, and learn beyond the classroom."],
+    ['2025', 'Our First Hackathon.', "ORIGIN organized its first hackathon, bringing students together to turn ideas into practical solutions. It marked an important step in the club's journey toward hands-on technical learning and collaboration."],
+    ['2025', 'A Growing Community.', 'ORIGIN began building its presence beyond campus activities, gaining college-level recognition and starting to establish its identity on social media. The focus was on connecting students with technical events, learning opportunities, and the wider community.'],
+    ['2026', 'AI Division Started', 'ORIGIN is exploring the world of Artificial Intelligence, encouraging students to learn emerging technologies, experiment with ideas, and build practical skills.'],
+    ['2026', 'Building Startups', 'From identifying real-world problems to developing project ideas, ORIGIN encourages students to think beyond the classroom and explore the possibilities of innovation and entrepreneurship.'],
+    ['2026', 'You are here.', 'The next chapter needs builders. Scroll down and claim your seat.'],
+  ];
+  const originalTimeline = [
+    ['2021', 'ORIGIN was born.', 'Seven students. One borrowed classroom. A whiteboard, a dream, and zero budget.'],
     ['2022', 'First Hackathon Win', 'Our web team took 1st place at the state-level hackathon — the first trophy of many.'],
     ['2023', 'National Recognition', 'Two national podiums, a research paper accepted, and 100+ members strong.'],
     ['2024', 'AI Division Started', "A dedicated AI lab, GPU access secured, and the club's first industry collaboration."],
     ['2025', 'Building Startups', "Three member-founded startups in incubation. ORIGIN is no longer just a club — it's a launchpad."],
-    ['2026', 'You are here.', 'The next chapter needs builders. Scroll down and claim your seat.']]
-      .forEach((r, i) => t.run(...r, i));
+    ['2026', 'You are here.', 'The next chapter needs builders. Scroll down and claim your seat.'],
+  ];
+  const timelineInsert = db.prepare('INSERT INTO timeline(year,title,body,sort) VALUES (?,?,?,?)');
+  if (empty('timeline')) {
+    timelineEntries.forEach((entry, i) => timelineInsert.run(...entry, i));
+  } else {
+    const current = db.prepare('SELECT year,title,body FROM timeline ORDER BY sort').all();
+    const isOriginalTimeline = current.length === originalTimeline.length && current.every((entry, i) =>
+      entry.year === originalTimeline[i][0] && entry.title === originalTimeline[i][1] && entry.body === originalTimeline[i][2]);
+    if (isOriginalTimeline) {
+      db.transaction(() => {
+        db.prepare('DELETE FROM timeline').run();
+        timelineEntries.forEach((entry, i) => timelineInsert.run(...entry, i));
+      })();
+    }
   }
   if (empty('missions')) {
     const m = db.prepare('INSERT INTO missions(name,status,description,sort) VALUES (?,?,?,?)');
