@@ -2564,9 +2564,9 @@
 
     /* ============ GALLERY ============ */
     (function () {
-      const G = [['🏆', 'National AgriTech Hackathon — Winners', 'hack · mar 2025'], ['🌙', '48 hours, zero sleep, one demo', 'hack · feb 2026'], ['🤖', 'Robotics workshop: 60 bots, 60 grins', 'work · jan 2026'], ['🚐', 'Industrial visit — the datacenter trip', 'trip · nov 2025'], ['🎉', 'Celebrating 147 members strong', 'win · aug 2025'], ['⚔', 'Inter-college CTF finals', 'comp · oct 2025'], ['🧑‍💻', 'Build night #23 — whiteboards full', 'work · sep 2025'], ['🏅', 'BoltBot podium at nationals', 'comp · dec 2025'], ['🍕', 'Demo day + pizza day (same day)', 'win · apr 2026'], ['🔧', 'PCB soldering marathon', 'work · jun 2025'], ['⛰', 'Team retreat to the hills', 'trip · dec 2024'], ['🥈', 'SentinelX takes silver at Cyber CTF', 'comp · jul 2024']];
+      const G = [['🏆', "SPECFIESTA'25", 'hack', 'feb 2025'], ['🤝', 'BODH BANDHAN', 'win', 'mar 2025'], ['💻', 'HACK-A-THON 1.0', 'hack', 'dec 2025'], ['⚔', 'COLLEGE RIVALS COLLAB', 'comp', 'dec 2025'], ['✨', "SPECFIESTA'26", 'hack', 'mar 2026'], ['📊', 'Workshop on DS', 'work', 'july 2026'], ['🚀', "SANKALP'26", 'win', 'aug 2026'], ['🤖', 'AGENTIC AI WORKSHOP', 'work', 'oct 2026']];
       const hues = [265, 190, 320, 150, 40, 210];
-      document.getElementById('galleryGrid').innerHTML = G.map((g, i) => '<div class="g-item" data-cat="' + g[2].split(' ')[0] + '"><div class="g-bg" style="background:radial-gradient(circle at 30% 30%,hsla(' + hues[i % 6] + ',80%,60%,.25),transparent 60%),linear-gradient(150deg,#0d1430,#070b1c)">' + g[0] + '</div><div class="g-cap">' + g[1] + '<small>' + g[2] + '</small></div></div>').join('');
+      document.getElementById('galleryGrid').innerHTML = G.map((g, i) => '<div class="g-item" data-cat="' + g[2] + '"><div class="g-bg" style="background:radial-gradient(circle at 30% 30%,hsla(' + hues[i % 6] + ',80%,60%,.25),transparent 60%),linear-gradient(150deg,#0d1430,#070b1c)">' + g[0] + '</div><div class="g-cap">' + g[1] + '<small>' + g[3] + '</small></div></div>').join('');
       document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); ch.classList.add('active');
         const f = ch.dataset.f;

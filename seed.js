@@ -91,15 +91,44 @@ function seed() {
   db.prepare("UPDATE leaderboard SET name='Trideepa' WHERE name='Rohan Iyer'").run();
   db.prepare("UPDATE leaderboard SET name='Manashi' WHERE name='Ananya Gupta'").run();
   db.prepare("UPDATE leaderboard SET name='Shlok Karn' WHERE name='Kabir Singh'").run();
+  const galleryEntries = [
+    ['🏆', "SPECFIESTA'25", 'hack', 'feb 2025'],
+    ['🤝', 'BODH BANDHAN', 'win', 'mar 2025'],
+    ['💻', 'HACK-A-THON 1.0', 'hack', 'dec 2025'],
+    ['⚔', 'COLLEGE RIVALS COLLAB', 'comp', 'dec 2025'],
+    ['✨', "SPECFIESTA'26", 'hack', 'mar 2026'],
+    ['📊', 'Workshop on DS', 'work', 'july 2026'],
+    ['🚀', "SANKALP'26", 'win', 'aug 2026'],
+    ['🤖', 'AGENTIC AI WORKSHOP', 'work', 'oct 2026'],
+  ];
+  const originalGallery = [
+    ['🏆', 'National AgriTech Hackathon — Winners', 'hack', 'hack · mar 2025'],
+    ['🌙', '48 hours, zero sleep, one demo', 'hack', 'hack · feb 2026'],
+    ['🤖', 'Robotics workshop: 60 bots, 60 grins', 'work', 'work · jan 2026'],
+    ['🚐', 'Industrial visit — the datacenter trip', 'trip', 'trip · nov 2025'],
+    ['🎉', 'Celebrating 147 members strong', 'win', 'win · aug 2025'],
+    ['⚔', 'Inter-college CTF finals', 'comp', 'comp · oct 2025'],
+    ['🧑‍💻', 'Build night #23 — whiteboards full', 'work', 'work · sep 2025'],
+    ['🏅', 'BoltBot podium at nationals', 'comp', 'comp · dec 2025'],
+    ['🍕', 'Demo day + pizza day (same day)', 'win', 'win · apr 2026'],
+    ['🔧', 'PCB soldering marathon', 'work', 'work · jun 2025'],
+    ['⛰', 'Team retreat to the hills', 'trip', 'trip · dec 2024'],
+    ['🥈', 'SentinelX takes silver at Cyber CTF', 'comp', 'comp · jul 2024'],
+  ];
+  const galleryInsert = db.prepare('INSERT INTO gallery(icon,caption,category,meta,sort) VALUES (?,?,?,?,?)');
   if (empty('gallery')) {
-    const g = db.prepare('INSERT INTO gallery(icon,caption,category,meta,sort) VALUES (?,?,?,?,?)');
-    [['🏆', 'National AgriTech Hackathon — Winners', 'hack', 'hack · mar 2025'], ['🌙', '48 hours, zero sleep, one demo', 'hack', 'hack · feb 2026'],
-    ['🤖', 'Robotics workshop: 60 bots, 60 grins', 'work', 'work · jan 2026'], ['🚐', 'Industrial visit — the datacenter trip', 'trip', 'trip · nov 2025'],
-    ['🎉', 'Celebrating 147 members strong', 'win', 'win · aug 2025'], ['⚔', 'Inter-college CTF finals', 'comp', 'comp · oct 2025'],
-    ['🧑‍💻', 'Build night #23 — whiteboards full', 'work', 'work · sep 2025'], ['🏅', 'BoltBot podium at nationals', 'comp', 'comp · dec 2025'],
-    ['🍕', 'Demo day + pizza day (same day)', 'win', 'win · apr 2026'], ['🔧', 'PCB soldering marathon', 'work', 'work · jun 2025'],
-    ['⛰', 'Team retreat to the hills', 'trip', 'trip · dec 2024'], ['🥈', 'SentinelX takes silver at Cyber CTF', 'comp', 'comp · jul 2024']]
-      .forEach((r, i) => g.run(...r, i));
+    galleryEntries.forEach((entry, i) => galleryInsert.run(...entry, i));
+  } else {
+    const current = db.prepare('SELECT icon,caption,category,meta FROM gallery ORDER BY sort').all();
+    const isOriginalGallery = current.length === originalGallery.length && current.every((entry, i) =>
+      entry.icon === originalGallery[i][0] && entry.caption === originalGallery[i][1] &&
+      entry.category === originalGallery[i][2] && entry.meta === originalGallery[i][3]);
+    if (isOriginalGallery) {
+      db.transaction(() => {
+        db.prepare('DELETE FROM gallery').run();
+        galleryEntries.forEach((entry, i) => galleryInsert.run(...entry, i));
+      })();
+    }
   }
   const timelineEntries = [
     ['2024', 'ORIGIN was born.', "A new chapter began for the CSE Department's technical community. ORIGIN set out to create opportunities for students to explore technology, collaborate, and learn beyond the classroom."],
