@@ -42,6 +42,26 @@ function seed() {
       ['Meera Nair', 'DESIGN HEAD', 'Figma,Motion,Brand', 'Current mission: making engineers care about kerning.', 7, 1],
     ].forEach((r, i) => m.run(...r, i));
   }
+  const additionalMembers = [
+    ['Rohan Iyer', 'CLOUD ENGINEER', 'AWS,Docker,CI/CD', 'Current mission: making every project deployment-ready.', 6, 2],
+    ['Ananya Gupta', 'IOT DEVELOPER', 'ESP32,MQTT,Sensors', 'Current mission: connecting campus devices to useful dashboards.', 5, 1],
+    ['Vikram Reddy', 'AI RESEARCHER', 'Python,Computer Vision,PyTorch', 'Current mission: testing practical computer-vision ideas.', 5, 1],
+    ['Priya Sharma', 'FRONTEND DEVELOPER', 'React,TypeScript,Accessibility', 'Current mission: making club tools easier for everyone to use.', 4, 1],
+    ['Arjun Nair', 'ROBOTICS ENGINEER', 'ROS,Embedded C,Control Systems', 'Current mission: building reliable autonomous robot demos.', 6, 2],
+    ['Sneha Rao', 'PRODUCT DESIGNER', 'Figma,UI Systems,Prototyping', 'Current mission: turning student feedback into clear product flows.', 4, 1],
+    ['Karthik Patel', 'SECURITY RESEARCHER', 'Linux,CTF,Network Security', 'Current mission: practicing defensive security through lab challenges.', 5, 2],
+    ['Divya Menon', 'APP DEVELOPER', 'Flutter,Dart,Firebase', 'Current mission: prototyping helpful mobile experiences for students.', 3, 1],
+    ['Rahul Verma', 'OPEN SOURCE CONTRIBUTOR', 'Git,JavaScript,Documentation', 'Current mission: helping more contributors find their first issue.', 4, 1],
+    ['Nisha Kapoor', 'DATA & AUTOMATION', 'Python,SQL,Data Visualization', 'Current mission: turning project data into actionable insights.', 3, 1],
+  ];
+  const insertMember = db.prepare('INSERT INTO members(name,role,skills,mission,projects,wins,sort) VALUES (?,?,?,?,?,?,?)');
+  const existingMembers = new Set(db.prepare('SELECT name FROM members').all().map(({ name }) => name));
+  additionalMembers.forEach((member) => {
+    if (!existingMembers.has(member[0])) {
+      insertMember.run(...member, db.prepare('SELECT COALESCE(MAX(sort), -1) + 1 AS nextSort FROM members').get().nextSort);
+      existingMembers.add(member[0]);
+    }
+  });
   if (empty('leaderboard')) {
     const l = db.prepare('INSERT INTO leaderboard(name,category,xp) VALUES (?,?,?)');
     [['Zara Khan', 'Robotics', 4820], ['Dev Patel', 'Web', 4510], ['Aarav Mehta', 'AI', 4330], ['Isha Rao', 'Cyber', 3900],
