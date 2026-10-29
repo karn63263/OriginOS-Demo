@@ -54,6 +54,7 @@ function seed() {
   db.prepare("UPDATE members SET name='Shravya',role='MEMBER' WHERE name='Priya Sharma'").run();
   db.prepare("UPDATE members SET name='Sai Charan',role='MEMBER' WHERE name='Arjun Nair'").run();
   db.prepare("UPDATE members SET name='Sri Charan',role='MEMBER' WHERE name='Sneha Rao'").run();
+  db.prepare("UPDATE members SET name='Rahul',role='MEMBER' WHERE name='Karthik Patel'").run();
   const additionalMembers = [
     ['Trideepa', 'MEMBER', 'AWS,Docker,CI/CD', 'Current mission: making every project deployment-ready.', 6, 2],
     ['Manashi', 'MEMBER', 'ESP32,MQTT,Sensors', 'Current mission: connecting campus devices to useful dashboards.', 5, 1],
@@ -61,7 +62,7 @@ function seed() {
     ['Shravya', 'MEMBER', 'React,TypeScript,Accessibility', 'Current mission: making club tools easier for everyone to use.', 4, 1],
     ['Sai Charan', 'MEMBER', 'ROS,Embedded C,Control Systems', 'Current mission: building reliable autonomous robot demos.', 6, 2],
     ['Sri Charan', 'MEMBER', 'Figma,UI Systems,Prototyping', 'Current mission: turning student feedback into clear product flows.', 4, 1],
-    ['Karthik Patel', 'SECURITY RESEARCHER', 'Linux,CTF,Network Security', 'Current mission: practicing defensive security through lab challenges.', 5, 2],
+    ['Rahul', 'MEMBER', 'Linux,CTF,Network Security', 'Current mission: practicing defensive security through lab challenges.', 5, 2],
     ['Divya Menon', 'APP DEVELOPER', 'Flutter,Dart,Firebase', 'Current mission: prototyping helpful mobile experiences for students.', 3, 1],
     ['Rahul Verma', 'OPEN SOURCE CONTRIBUTOR', 'Git,JavaScript,Documentation', 'Current mission: helping more contributors find their first issue.', 4, 1],
     ['Nisha Kapoor', 'DATA & AUTOMATION', 'Python,SQL,Data Visualization', 'Current mission: turning project data into actionable insights.', 3, 1],
